@@ -1,7 +1,6 @@
 package com.grocex_api.userService.dto;
 
 import org.springframework.stereotype.Component;
-
 import java.time.ZonedDateTime;
 import java.util.UUID;
 

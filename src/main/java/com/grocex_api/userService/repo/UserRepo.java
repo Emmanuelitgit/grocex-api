@@ -7,19 +7,24 @@ import org.springframework.data.jpa.repository.Query;
 import org.springframework.stereotype.Repository;
 
 import java.util.List;
+import java.util.Optional;
 import java.util.UUID;
 
 @Repository
 public interface UserRepo extends JpaRepository<User, UUID> {
 
-    @Query(value = "SELECT u.id, u.first_name,u.last_name, u.email, u.phone, u.username, u.role, rs.name AS role FROM user_tb u " +
+    @Query(value = "SELECT u.id, u.first_name,u.last_name, u.email, u.phone, u.username, rs.name AS role FROM user_tb u " +
             "JOIN user_role_tb ur ON u.id = ur.user_id " +
             "JOIN role_setup_tb rs ON ur.role_id=rs.id ", nativeQuery = true)
     List<UserDTO> getUsersDetails();
 
-    @Query(value = "SELECT u.id, u.first_name,u.last_name, u.email, u.phone, u.username, u.role, rs.name AS role FROM user_tb u " +
+    @Query(value = "SELECT u.id, u.first_name,u.last_name, u.email, u.phone, u.username, rs.name AS role FROM user_tb u " +
             "JOIN user_role_tb ur ON u.id = ur.user_id " +
             "JOIN role_setup_tb rs ON ur.role_id=rs.id " +
             "WHERE u.id =? ", nativeQuery = true)
     UserDTO getUsersDetailsByUserId(UUID userId);
+
+    Optional<User> findUserByUsername(String username);
+
+    Optional<User> findUserByEmail(String email);
 }

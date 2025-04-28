@@ -11,4 +11,6 @@ public interface RoleSetupService {
     ResponseEntity<ResponseDTO> saveRole(RoleSetup roleSetup);
     ResponseEntity<ResponseDTO> updateRole(RoleSetup roleSetup, UUID roleId);
     ResponseEntity<ResponseDTO> findRoleById(UUID roleId);
+    ResponseEntity<ResponseDTO> deleteRole(UUID roleId);
+    ResponseEntity<ResponseDTO> getRoles();
 }

@@ -20,6 +20,7 @@ import org.springframework.stereotype.Service;
 
 import javax.swing.text.html.Option;
 import java.lang.reflect.Array;
+import java.time.ZonedDateTime;
 import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
@@ -30,17 +31,15 @@ public class UserServiceImpl implements UserService {
     private final UserRepo userRepo;
     private final DTOMapper dtoMapper;
     private final PasswordEncoder passwordEncoder;
-    private final UserRole userRole;
     private final UserRoleServiceImpl userRoleServiceImpl;
     private final RoleSetupRepo roleSetupRepo;
     private final RoleSetupServiceImpl roleSetupServiceImpl;
 
     @Autowired
-    public UserServiceImpl(UserRepo userRepo, DTOMapper dtoMapper, PasswordEncoder passwordEncoder, UserRole userRole, UserRoleServiceImpl userRoleServiceImpl, RoleSetupRepo roleSetupRepo, RoleSetupServiceImpl roleSetupServiceImpl) {
+    public UserServiceImpl(UserRepo userRepo, DTOMapper dtoMapper, PasswordEncoder passwordEncoder, UserRoleServiceImpl userRoleServiceImpl, RoleSetupRepo roleSetupRepo, RoleSetupServiceImpl roleSetupServiceImpl) {
         this.userRepo = userRepo;
         this.dtoMapper = dtoMapper;
         this.passwordEncoder = passwordEncoder;
-        this.userRole = userRole;
         this.userRoleServiceImpl = userRoleServiceImpl;
         this.roleSetupRepo = roleSetupRepo;
         this.roleSetupServiceImpl = roleSetupServiceImpl;
@@ -64,12 +63,18 @@ public class UserServiceImpl implements UserService {
 
            userPayloadDTO.setPassword(passwordEncoder.encode(userPayloadDTO.getPassword()));
            User user = dtoMapper.toUserEntity(userPayloadDTO);
+           user.setCreatedAt(ZonedDateTime.now());
            User userResponse = userRepo.save(user);
 
-           ResponseEntity<ResponseDTO> role = roleSetupServiceImpl.findRoleById(userPayloadDTO.getRole());
+           Optional<RoleSetup> roleSetupOptional = roleSetupRepo.findById(userPayloadDTO.getRole());
+           if (roleSetupOptional.isEmpty()){
+               ResponseDTO  response = AppUtils.getResponseDto("role record not found", HttpStatus.NOT_FOUND);
+               return new ResponseEntity<>(response, HttpStatus.NOT_FOUND);
+           }
+           RoleSetup role = roleSetupOptional.get();
            userRoleServiceImpl.saveUserRole(userResponse.getId(), userPayloadDTO.getRole());
 
-           UserDTO userDTO = DTOMapper.toUserDTO(userResponse, role.getBody().getData().toString());
+           UserDTO userDTO = DTOMapper.toUserDTO(userResponse, role.getName());
            ResponseDTO  response = AppUtils.getResponseDto("user record added successfully", HttpStatus.CREATED, userDTO);
            return new ResponseEntity<>(response, HttpStatus.CREATED);
        } catch (Exception e) {
@@ -125,7 +130,7 @@ public class UserServiceImpl implements UserService {
 
     /**
      * @description This method is used to update user records.
-     * @param user
+     * @param userPayload
      * @param userId
      * @return
      * @auther Emmanuel Yidana

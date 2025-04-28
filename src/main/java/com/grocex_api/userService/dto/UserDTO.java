@@ -2,7 +2,6 @@ package com.grocex_api.userService.dto;
 
 import lombok.*;
 import org.springframework.stereotype.Component;
-
 import java.util.UUID;
 
 @Setter

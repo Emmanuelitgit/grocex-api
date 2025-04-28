@@ -1,7 +1,10 @@
 package com.grocex_api.userService.dto;
 
 import com.grocex_api.userService.models.User;
+import org.keycloak.jose.jwk.JWK;
 import org.springframework.stereotype.Component;
+
+import java.util.List;
 
 @Component
 public class DTOMapper {
