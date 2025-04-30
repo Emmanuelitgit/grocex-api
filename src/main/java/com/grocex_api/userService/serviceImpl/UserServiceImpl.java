@@ -56,6 +56,7 @@ public class UserServiceImpl implements UserService {
     @Override
     public ResponseEntity<ResponseDTO> createUser(UserPayloadDTO userPayloadDTO) {
        try {
+           log.info("In create user method:->>>>>>");
            if (userPayloadDTO  == null){
                ResponseDTO  response = AppUtils.getResponseDto("user payload cannot be null", HttpStatus.BAD_REQUEST);
                return new ResponseEntity<>(response, HttpStatus.BAD_REQUEST);
@@ -73,11 +74,12 @@ public class UserServiceImpl implements UserService {
            }
            RoleSetup role = roleSetupOptional.get();
            userRoleServiceImpl.saveUserRole(userResponse.getId(), userPayloadDTO.getRole());
-
+           log.info("User created successfully:->>>>>>");
            UserDTO userDTO = DTOMapper.toUserDTO(userResponse, role.getName());
            ResponseDTO  response = AppUtils.getResponseDto("user record added successfully", HttpStatus.CREATED, userDTO);
            return new ResponseEntity<>(response, HttpStatus.CREATED);
        } catch (Exception e) {
+           log.error("Exception Occurred!, statusCode -> {} and Cause -> {} and Message -> {}", 500, e.getCause(), e.getMessage());
            ResponseDTO  response = AppUtils.getResponseDto("Internal server error", HttpStatus.INTERNAL_SERVER_ERROR);
            return new ResponseEntity<>(response, HttpStatus.INTERNAL_SERVER_ERROR);
        }
@@ -92,6 +94,7 @@ public class UserServiceImpl implements UserService {
     @Override
     public ResponseEntity<ResponseDTO> getUsers() {
        try{
+           log.info("In get all users method:->>>>>>");
            List<UserDTOProjection> users = userRepo.getUsersDetails();
            log.info("EMAIL:==={}", users.get(0).getEmail());
            if (users.isEmpty()){
@@ -101,6 +104,7 @@ public class UserServiceImpl implements UserService {
            ResponseDTO  response = AppUtils.getResponseDto("users records fetched successfully", HttpStatus.OK, users);
            return new ResponseEntity<>(response, HttpStatus.OK);
        } catch (Exception e) {
+           log.error("Exception Occurred!, statusCode -> {} and Cause -> {} and Message -> {}", 500, e.getCause(), e.getMessage());
            ResponseDTO  response = AppUtils.getResponseDto(e.getMessage(), HttpStatus.INTERNAL_SERVER_ERROR);
            return new ResponseEntity<>(response, HttpStatus.INTERNAL_SERVER_ERROR);
        }
@@ -116,6 +120,7 @@ public class UserServiceImpl implements UserService {
     @Override
     public ResponseEntity<ResponseDTO> getUserById(UUID userId) {
        try{
+           log.info("In get user by id method:->>>>>>");
            UserDTOProjection user = userRepo.getUsersDetailsByUserId(userId);
            if (user == null){
                ResponseDTO  response = AppUtils.getResponseDto("no user record found", HttpStatus.NOT_FOUND);
@@ -124,6 +129,7 @@ public class UserServiceImpl implements UserService {
            ResponseDTO  response = AppUtils.getResponseDto("user records fetched successfully", HttpStatus.OK, user);
            return new ResponseEntity<>(response, HttpStatus.OK);
        } catch (Exception e) {
+           log.error("Exception Occurred!, statusCode -> {} and Cause -> {} and Message -> {}", 500, e.getCause(), e.getMessage());
            ResponseDTO  response = AppUtils.getResponseDto("Internal server error", HttpStatus.INTERNAL_SERVER_ERROR);
            return new ResponseEntity<>(response, HttpStatus.INTERNAL_SERVER_ERROR);
        }
@@ -140,6 +146,7 @@ public class UserServiceImpl implements UserService {
     @Override
     public ResponseEntity<ResponseDTO> updateUser(UserPayloadDTO userPayload, UUID userId) {
         try{
+            log.info("In update user method:->>>>>>");
             Optional<User> userOptional = userRepo.findById(userId);
             if (userOptional.isEmpty()){
                 ResponseDTO  response = AppUtils.getResponseDto("no user record found", HttpStatus.NOT_FOUND);
@@ -152,13 +159,14 @@ public class UserServiceImpl implements UserService {
             existingData.setUsername(userPayload.getUsername());
             existingData.setPhone(userPayload.getPhone());
             User userResponse = userRepo.save(existingData);
-
+            log.info("user updated successfully:->>>>>>");
             ResponseEntity<ResponseDTO> role = roleSetupServiceImpl.findRoleById(userPayload.getRole());
             UserDTO userDTOResponse = DTOMapper.toUserDTO(userResponse, role.getBody().getData().toString());
 
             ResponseDTO  response = AppUtils.getResponseDto("user records updated successfully", HttpStatus.OK, userDTOResponse);
             return new ResponseEntity<>(response, HttpStatus.OK);
         } catch (Exception e) {
+            log.error("Exception Occurred!, statusCode -> {} and Cause -> {} and Message -> {}", 500, e.getCause(), e.getMessage());
             ResponseDTO  response = AppUtils.getResponseDto("Internal server error", HttpStatus.INTERNAL_SERVER_ERROR);
             return new ResponseEntity<>(response, HttpStatus.INTERNAL_SERVER_ERROR);
         }
@@ -174,15 +182,18 @@ public class UserServiceImpl implements UserService {
     @Override
     public ResponseEntity<ResponseDTO> removeUser(UUID userId) {
         try {
+            log.info("In remove user method:->>>>>>");
             Optional<User> userOptional = userRepo.findById(userId);
             if (userOptional.isEmpty()){
                 ResponseDTO  response = AppUtils.getResponseDto("no user record found", HttpStatus.NOT_FOUND);
                 return new ResponseEntity<>(response, HttpStatus.NOT_FOUND);
             }
             userRepo.deleteById(userId);
+            log.info("user removed successfully:->>>>>>");
             ResponseDTO  response = AppUtils.getResponseDto("user record removed successfully", HttpStatus.OK);
             return new ResponseEntity<>(response, HttpStatus.OK);
         } catch (Exception e) {
+            log.error("Exception Occurred!, statusCode -> {} and Cause -> {} and Message -> {}", 500, e.getCause(), e.getMessage());
             ResponseDTO  response = AppUtils.getResponseDto("Internal server error", HttpStatus.INTERNAL_SERVER_ERROR);
             return new ResponseEntity<>(response, HttpStatus.INTERNAL_SERVER_ERROR);
         }

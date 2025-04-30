@@ -20,12 +20,21 @@ public interface UserRepo extends JpaRepository<User, UUID> {
             "JOIN role_setup_tb rs ON ur.role_id=rs.id ", nativeQuery = true)
     List<UserDTOProjection> getUsersDetails();
 
+
     @Query(value = "SELECT BIN_TO_UUID(u.id) AS id, u.first_name, u.last_name, u.email, u.phone, u.username, rs.name AS role " +
             "FROM user_tb u " +
             "JOIN user_role_tb ur ON u.id = ur.user_id " +
             "JOIN role_setup_tb rs ON ur.role_id = rs.id " +
             "WHERE u.id =? ", nativeQuery = true)
     UserDTOProjection getUsersDetailsByUserId(UUID userId);
+
+
+    @Query(value = "SELECT BIN_TO_UUID(u.id) AS id, u.first_name, u.last_name, u.email, u.phone, u.username, rs.name AS role " +
+            "FROM user_tb u " +
+            "JOIN user_role_tb ur ON u.id = ur.user_id " +
+            "JOIN role_setup_tb rs ON ur.role_id = rs.id " +
+            "WHERE u.email =? ", nativeQuery = true)
+    UserDTOProjection getUsersDetailsByUserEmail(String email);
 
 
     Optional<User> findUserByUsername(String username);
