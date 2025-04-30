@@ -2,29 +2,29 @@ package com.grocex_api.userService.serviceImpl;
 
 import com.grocex_api.response.ResponseDTO;
 import com.grocex_api.userService.dto.DTOMapper;
+import com.grocex_api.userService.dto.UserDTOProjection;
 import com.grocex_api.userService.dto.UserPayloadDTO;
 import com.grocex_api.userService.models.RoleSetup;
 import com.grocex_api.userService.models.User;
 import com.grocex_api.userService.dto.UserDTO;
-import com.grocex_api.userService.models.UserRole;
 import com.grocex_api.userService.repo.RoleSetupRepo;
 import com.grocex_api.userService.repo.UserRepo;
 import com.grocex_api.userService.service.UserService;
 import com.grocex_api.utils.AppUtils;
 import jakarta.transaction.Transactional;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
-import javax.swing.text.html.Option;
-import java.lang.reflect.Array;
 import java.time.ZonedDateTime;
 import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
 
+@Slf4j
 @Service
 public class UserServiceImpl implements UserService {
 
@@ -92,7 +92,8 @@ public class UserServiceImpl implements UserService {
     @Override
     public ResponseEntity<ResponseDTO> getUsers() {
        try{
-           List<UserDTO> users = userRepo.getUsersDetails();
+           List<UserDTOProjection> users = userRepo.getUsersDetails();
+           log.info("EMAIL:==={}", users.get(0).getEmail());
            if (users.isEmpty()){
                ResponseDTO  response = AppUtils.getResponseDto("no user record found", HttpStatus.NOT_FOUND);
                return new ResponseEntity<>(response, HttpStatus.NOT_FOUND);
@@ -100,7 +101,7 @@ public class UserServiceImpl implements UserService {
            ResponseDTO  response = AppUtils.getResponseDto("users records fetched successfully", HttpStatus.OK, users);
            return new ResponseEntity<>(response, HttpStatus.OK);
        } catch (Exception e) {
-           ResponseDTO  response = AppUtils.getResponseDto("Internal server error", HttpStatus.INTERNAL_SERVER_ERROR);
+           ResponseDTO  response = AppUtils.getResponseDto(e.getMessage(), HttpStatus.INTERNAL_SERVER_ERROR);
            return new ResponseEntity<>(response, HttpStatus.INTERNAL_SERVER_ERROR);
        }
     }
@@ -115,7 +116,7 @@ public class UserServiceImpl implements UserService {
     @Override
     public ResponseEntity<ResponseDTO> getUserById(UUID userId) {
        try{
-           UserDTO user = userRepo.getUsersDetailsByUserId(userId);
+           UserDTOProjection user = userRepo.getUsersDetailsByUserId(userId);
            if (user == null){
                ResponseDTO  response = AppUtils.getResponseDto("no user record found", HttpStatus.NOT_FOUND);
                return new ResponseEntity<>(response, HttpStatus.NOT_FOUND);
