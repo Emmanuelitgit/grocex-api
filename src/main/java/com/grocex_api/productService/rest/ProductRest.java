@@ -28,8 +28,8 @@ public class ProductRest {
     }
 
     @PostMapping
-    public ResponseEntity<ResponseDTO> saveProduct(@RequestBody Product product, @RequestParam MultipartFile file){
-        return productService.saveProduct(product, file);
+    public ResponseEntity<ResponseDTO> saveProduct(@RequestBody Product product){
+        return productService.saveProduct(product);
     }
 
     @GetMapping("/{productId}")

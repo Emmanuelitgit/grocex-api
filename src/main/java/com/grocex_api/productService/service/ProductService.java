@@ -9,7 +9,7 @@ import java.util.UUID;
 
 public interface ProductService {
 
-    ResponseEntity<ResponseDTO> saveProduct(Product product, MultipartFile file);
+    ResponseEntity<ResponseDTO> saveProduct(Product product);
     ResponseEntity<ResponseDTO> findAll();
     ResponseEntity<ResponseDTO> findProductById(UUID productId);
     ResponseEntity<ResponseDTO> updateProduct(Product product);

@@ -1,14 +1,9 @@
 package com.grocex_api.productService.serviceImpl;
 
-import com.grocex_api.fileManager.ProductFileService;
 import com.grocex_api.productService.models.Product;
 import com.grocex_api.productService.repo.ProductRepo;
 import com.grocex_api.productService.service.ProductService;
 import com.grocex_api.response.ResponseDTO;
-import com.grocex_api.userService.dto.DTOMapper;
-import com.grocex_api.userService.dto.UserDTO;
-import com.grocex_api.userService.dto.UserDTOProjection;
-import com.grocex_api.userService.models.User;
 import com.grocex_api.utils.AppUtils;
 import jakarta.transaction.Transactional;
 import lombok.extern.slf4j.Slf4j;
@@ -28,12 +23,10 @@ import java.util.UUID;
 public class ProductServiceImpl implements ProductService {
 
     private final ProductRepo productRepo;
-    private final ProductFileService productFileService;
 
     @Autowired
-    public ProductServiceImpl(ProductRepo productRepo, ProductFileService productFileService) {
+    public ProductServiceImpl(ProductRepo productRepo) {
         this.productRepo = productRepo;
-        this.productFileService = productFileService;
     }
 
     /**
@@ -45,7 +38,7 @@ public class ProductServiceImpl implements ProductService {
      */
     @Transactional
     @Override
-    public ResponseEntity<ResponseDTO> saveProduct(Product product, MultipartFile file) {
+    public ResponseEntity<ResponseDTO> saveProduct(Product product) {
         try{
             log.info("In save product method:->>>>>>>");
             if (product == null){
@@ -55,7 +48,7 @@ public class ProductServiceImpl implements ProductService {
             }
             product.setCreatedAt(ZonedDateTime.now());
             Product productRes = productRepo.save(product);
-            productFileService.saveProductFile(file);
+//            productFileService.saveProductFile(file);
             ResponseDTO  response = AppUtils.getResponseDto("product record added successfully", HttpStatus.CREATED, productRes);
             return new ResponseEntity<>(response, HttpStatus.CREATED);
         } catch (Exception e) {
@@ -139,6 +132,7 @@ public class ProductServiceImpl implements ProductService {
            existingData.setFileId(product.getFileId());
            existingData.setCategoryId(product.getCategoryId());
            existingData.setRatingId(product.getRatingId());
+           existingData.setProductOwnerId(product.getProductOwnerId());
            Product productRes = productRepo.save(existingData);
 
            ResponseDTO  response = AppUtils.getResponseDto("product records updated successfully", HttpStatus.OK, productRes);

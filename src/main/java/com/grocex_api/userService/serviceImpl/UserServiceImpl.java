@@ -1,12 +1,9 @@
 package com.grocex_api.userService.serviceImpl;
 
 import com.grocex_api.response.ResponseDTO;
-import com.grocex_api.userService.dto.DTOMapper;
-import com.grocex_api.userService.dto.UserDTOProjection;
-import com.grocex_api.userService.dto.UserPayloadDTO;
+import com.grocex_api.userService.dto.*;
 import com.grocex_api.userService.models.RoleSetup;
 import com.grocex_api.userService.models.User;
-import com.grocex_api.userService.dto.UserDTO;
 import com.grocex_api.userService.repo.RoleSetupRepo;
 import com.grocex_api.userService.repo.UserRepo;
 import com.grocex_api.userService.service.UserService;
@@ -20,9 +17,8 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
 import java.time.ZonedDateTime;
-import java.util.List;
-import java.util.Optional;
-import java.util.UUID;
+import java.util.*;
+import java.util.stream.Collectors;
 
 @Slf4j
 @Service
@@ -67,6 +63,7 @@ public class UserServiceImpl implements UserService {
            user.setCreatedAt(ZonedDateTime.now());
            User userResponse = userRepo.save(user);
 
+           // getting the user role name from the role setup db
            Optional<RoleSetup> roleSetupOptional = roleSetupRepo.findById(userPayloadDTO.getRole());
            if (roleSetupOptional.isEmpty()){
                ResponseDTO  response = AppUtils.getResponseDto("role record not found", HttpStatus.NOT_FOUND);
@@ -96,7 +93,6 @@ public class UserServiceImpl implements UserService {
        try{
            log.info("In get all users method:->>>>>>");
            List<UserDTOProjection> users = userRepo.getUsersDetails();
-           log.info("EMAIL:==={}", users.get(0).getEmail());
            if (users.isEmpty()){
                ResponseDTO  response = AppUtils.getResponseDto("no user record found", HttpStatus.NOT_FOUND);
                return new ResponseEntity<>(response, HttpStatus.NOT_FOUND);
@@ -160,8 +156,15 @@ public class UserServiceImpl implements UserService {
             existingData.setPhone(userPayload.getPhone());
             User userResponse = userRepo.save(existingData);
             log.info("user updated successfully:->>>>>>");
-            ResponseEntity<ResponseDTO> role = roleSetupServiceImpl.findRoleById(userPayload.getRole());
-            UserDTO userDTOResponse = DTOMapper.toUserDTO(userResponse, role.getBody().getData().toString());
+
+            // getting the role name from the role setup db
+            Optional<RoleSetup> roleSetupOptional = roleSetupRepo.findById(userPayload.getRole());
+            if (roleSetupOptional.isEmpty()){
+                ResponseDTO  response = AppUtils.getResponseDto("role record not found", HttpStatus.NOT_FOUND);
+                return new ResponseEntity<>(response, HttpStatus.NOT_FOUND);
+            }
+            RoleSetup role = roleSetupOptional.get();
+            UserDTO userDTOResponse = DTOMapper.toUserDTO(userResponse, role.getName());
 
             ResponseDTO  response = AppUtils.getResponseDto("user records updated successfully", HttpStatus.OK, userDTOResponse);
             return new ResponseEntity<>(response, HttpStatus.OK);
@@ -197,5 +200,58 @@ public class UserServiceImpl implements UserService {
             ResponseDTO  response = AppUtils.getResponseDto("Internal server error", HttpStatus.INTERNAL_SERVER_ERROR);
             return new ResponseEntity<>(response, HttpStatus.INTERNAL_SERVER_ERROR);
         }
+    }
+
+    /**
+     * @description This method is used to fetch users with their products.ie products belong to them.
+     * @return
+     * @auther Emmanuel Yidana
+     * @createdAt 1st may 2025
+     */
+    public ResponseEntity<ResponseDTO> getUsersAndProducts(){
+      try{
+          log.info("In getUsersAndProducts method:->>>>>>>");
+          List<UserProductProjection> userProductRes = userRepo.getUsersAndProducts();
+          if (userProductRes.isEmpty()){
+              ResponseDTO  response = AppUtils.getResponseDto("no record found", HttpStatus.NOT_FOUND);
+              return new ResponseEntity<>(response, HttpStatus.NOT_FOUND);
+          }
+
+          // storing the data(user and products) here as list
+          List<Object> res = new ArrayList<>();
+          // to hold products with user email as key
+          Map<String, List<Object>> products = new HashMap<>();
+          // looping to set user details and products of the user
+          for (UserProductProjection userProduct: userProductRes){
+              Map<String, Object> data = new HashMap<>();
+              data.put("id", userProduct.getUserId());
+              data.put("email", userProduct.getEmail());
+              data.put("full name", userProduct.getFullName());
+
+              if (!products.containsKey(userProduct.getEmail())){
+                  products.put(userProduct.getEmail(), new ArrayList<>());
+              }
+              Map<String, Object> productItems = new HashMap<>();
+              productItems.put("id", userProduct.getProductId());
+              productItems.put("name", userProduct.getProduct());
+              productItems.put("price", userProduct.getPrice());
+              productItems.put("quantity", userProduct.getQuantity());
+
+              products.get(userProduct.getEmail()).add(productItems);
+
+              data.put("products", products.get(userProduct.getEmail()));
+              res.add(data);
+          }
+
+          // removing duplicates
+          Set<Object> setRes = new HashSet<>(res);
+          log.info("user products fetched success:->>>>>>");
+          ResponseDTO  response = AppUtils.getResponseDto("user products fetched successfully", HttpStatus.OK, setRes);
+          return new ResponseEntity<>(response, HttpStatus.OK);
+      } catch (Exception e) {
+          log.error("Exception Occurred!, statusCode -> {} and Cause -> {} and Message -> {}", 500, e.getCause(), e.getMessage());
+          ResponseDTO  response = AppUtils.getResponseDto("Internal server error", HttpStatus.INTERNAL_SERVER_ERROR);
+          return new ResponseEntity<>(response, HttpStatus.INTERNAL_SERVER_ERROR);
+      }
     }
 }

@@ -1,0 +1,13 @@
+package com.grocex_api.userService.dto;
+
+import java.util.UUID;
+
+public interface UserProductProjection {
+    UUID getUserId();
+    UUID getProductId();
+    String getFullName();
+    String getProduct();
+    Integer getPrice();
+    Integer getQuantity();
+    String getEmail();
+}

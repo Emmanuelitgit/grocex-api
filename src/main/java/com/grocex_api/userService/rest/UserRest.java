@@ -41,4 +41,9 @@ public class UserRest {
     public ResponseEntity<ResponseDTO> updateUser(@PathVariable UUID userId, @RequestBody UserPayloadDTO user){
         return userService.updateUser(user, userId);
     }
+
+    @GetMapping("/products")
+    public ResponseEntity<ResponseDTO> getUsersAndProducts(){
+        return userService.getUsersAndProducts();
+    }
 }
