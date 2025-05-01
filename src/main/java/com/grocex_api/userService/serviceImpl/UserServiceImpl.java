@@ -234,8 +234,9 @@ public class UserServiceImpl implements UserService {
               Map<String, Object> productItems = new HashMap<>();
               productItems.put("id", userProduct.getProductId());
               productItems.put("name", userProduct.getProduct());
-              productItems.put("price", userProduct.getPrice());
+              productItems.put("unit price", userProduct.getUnitPrice());
               productItems.put("quantity", userProduct.getQuantity());
+              productItems.put("category", userProduct.getCategory());
 
               products.get(userProduct.getEmail()).add(productItems);
 

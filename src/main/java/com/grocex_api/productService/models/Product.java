@@ -23,7 +23,7 @@ public class Product {
     private UUID id;
     private String name;
     private int quantity;
-    private int price;
+    private int unitPrice;
     private UUID categoryId;
     private UUID fileId;
     private UUID ratingId;

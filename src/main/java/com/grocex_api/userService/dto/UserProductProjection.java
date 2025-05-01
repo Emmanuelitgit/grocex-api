@@ -7,7 +7,8 @@ public interface UserProductProjection {
     UUID getProductId();
     String getFullName();
     String getProduct();
-    Integer getPrice();
+    Integer getUnitPrice();
     Integer getQuantity();
+    String getCategory();
     String getEmail();
 }

@@ -1,5 +1,6 @@
 package com.grocex_api.productService.serviceImpl;
 
+import com.grocex_api.productService.dto.ProductProjection;
 import com.grocex_api.productService.models.Product;
 import com.grocex_api.productService.repo.ProductRepo;
 import com.grocex_api.productService.service.ProductService;
@@ -14,9 +15,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.time.ZonedDateTime;
-import java.util.List;
-import java.util.Optional;
-import java.util.UUID;
+import java.util.*;
 
 @Slf4j
 @Service
@@ -67,8 +66,8 @@ public class ProductServiceImpl implements ProductService {
     @Override
     public ResponseEntity<ResponseDTO> findAll() {
         try{
-            log.info("In get all users method:->>>>>>");
-            List<Product> products = productRepo.findAll();
+            log.info("In get all products method:->>>>>>");
+            List<ProductProjection> products = productRepo.getProductAndCategory();
             if (products.isEmpty()){
                 log.error("no product record found:->>>>>>>{}", HttpStatus.NOT_FOUND);
                 ResponseDTO  response = AppUtils.getResponseDto("no product record found", HttpStatus.NOT_FOUND);
@@ -94,13 +93,13 @@ public class ProductServiceImpl implements ProductService {
     public ResponseEntity<ResponseDTO> findProductById(UUID productId) {
         try{
             log.info("In get product by id method:->>>>>>");
-            Optional<Product> productOptional = productRepo.findById(productId);
-            if (productOptional.isEmpty()){
+            ProductProjection product = productRepo.getProductAndCategoryById(productId);
+            if (product == null){
                 log.error("no product record found:->>>>>>>{}", HttpStatus.NOT_FOUND);
                 ResponseDTO  response = AppUtils.getResponseDto("no product record found", HttpStatus.NOT_FOUND);
                 return new ResponseEntity<>(response, HttpStatus.NOT_FOUND);
             }
-            ResponseDTO  response = AppUtils.getResponseDto("user records fetched successfully", HttpStatus.OK, productOptional.get());
+            ResponseDTO  response = AppUtils.getResponseDto("user records fetched successfully", HttpStatus.OK, product);
             return new ResponseEntity<>(response, HttpStatus.OK);
         } catch (Exception e) {
             log.error("Exception Occurred!, statusCode -> {} and Cause -> {} and Message -> {}", 500, e.getCause(), e.getMessage());
@@ -133,6 +132,8 @@ public class ProductServiceImpl implements ProductService {
            existingData.setCategoryId(product.getCategoryId());
            existingData.setRatingId(product.getRatingId());
            existingData.setProductOwnerId(product.getProductOwnerId());
+           existingData.setUnitPrice(product.getUnitPrice());
+           existingData.setQuantity(product.getQuantity());
            Product productRes = productRepo.save(existingData);
 
            ResponseDTO  response = AppUtils.getResponseDto("product records updated successfully", HttpStatus.OK, productRes);

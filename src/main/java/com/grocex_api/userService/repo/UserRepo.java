@@ -37,8 +37,9 @@ public interface UserRepo extends JpaRepository<User, UUID> {
             "WHERE u.email =? ", nativeQuery = true)
     UserDTOProjection getUsersDetailsByUserEmail(String email);
 
-    @Query(value = "SELECT CONCAT(u.first_name,  ' ' ,u.last_name) AS full_name, u.email, BIN_TO_UUID(u.id) AS userId, BIN_TO_UUID(p.id) AS productId, p.name AS product, p.price, p.quantity FROM product p " +
-            "JOIN user_tb u on u.id = p.product_owner_id ", nativeQuery = true)
+    @Query(value = "SELECT CONCAT(u.first_name,  ' ' ,u.last_name) AS full_name, u.email, BIN_TO_UUID(u.id) AS userId, BIN_TO_UUID(p.id) AS productId, p.name AS product, p.unit_price, p.quantity, c.name AS category FROM product p " +
+            "JOIN user_tb u on u.id = p.product_owner_id " +
+            "JOIN category_tb c ON c.id = p.category_id ", nativeQuery = true)
     List<UserProductProjection> getUsersAndProducts();
 
     Optional<User> findUserByUsername(String username);

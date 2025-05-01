@@ -1,7 +1,6 @@
 package com.grocex_api.productService.rest;
 
 import com.grocex_api.productService.models.Category;
-import com.grocex_api.productService.repo.CategoryRepo;
 import com.grocex_api.productService.serviceImpl.CategoryServiceImpl;
 import com.grocex_api.response.ResponseDTO;
 import org.springframework.beans.factory.annotation.Autowired;
