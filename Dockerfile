@@ -16,7 +16,7 @@ FROM openjdk:19-jdk
 WORKDIR /app
 
 EXPOSE 5000
-VOLUME /tmp
+#VOLUME /tmp
 
 COPY --from=build /app/target/*.jar app.jar
 
