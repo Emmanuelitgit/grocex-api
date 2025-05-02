@@ -1,0 +1,17 @@
+package com.grocex_api.paymentService.service;
+
+import com.grocex_api.paymentService.models.Payment;
+import com.grocex_api.productService.models.Product;
+import com.grocex_api.response.ResponseDTO;
+import org.springframework.http.ResponseEntity;
+
+import java.util.UUID;
+
+public interface PaymentService {
+    ResponseEntity<ResponseDTO> savePayment(Payment payment);
+    ResponseEntity<ResponseDTO> findAll();
+    ResponseEntity<ResponseDTO> findPaymentById(UUID paymentId);
+    ResponseEntity<ResponseDTO> updatePayment(Payment payment);
+    ResponseEntity<ResponseDTO> removePayment(UUID paymentId);
+
+}
