@@ -17,9 +17,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 
-import java.util.List;
-import java.util.Optional;
-import java.util.UUID;
+import java.util.*;
 
 @Service
 @Slf4j
@@ -93,7 +91,34 @@ public class OrderServiceImpl implements OrderService {
                 ResponseDTO  response = AppUtils.getResponseDto("no order record found", HttpStatus.NOT_FOUND);
                 return new ResponseEntity<>(response, HttpStatus.NOT_FOUND);
             }
-            ResponseDTO  response = AppUtils.getResponseDto("products records fetched successfully", HttpStatus.OK, orders);
+            Map<Object, List<Object>> ordersObj = new HashMap<>();
+            List<Object> res = new ArrayList<>();
+            for (OrderProjection order:orders){
+                Map<String, Object> data = new HashMap<>();
+                data.put("full name", order.getCustomer());
+                data.put("username", order.getUsername());
+                data.put("email", order.getEmail());
+
+                if (!ordersObj.containsKey(order.getCustomer())){
+                    ordersObj.put(order.getCustomer(), new ArrayList<>());
+                }
+
+                Map<String, Object> orderItems  = new HashMap<>();
+                orderItems.put("orderId", order.getOrderId());
+                orderItems.put("product", order.getProduct());
+                orderItems.put("unitPrice", order.getUnitPrice());
+                orderItems.put("quantity", order.getQuantity());
+                orderItems.put("totalPrice", order.getTotalPrice());
+
+                ordersObj.get(order.getCustomer()).add(orderItems);
+
+                data.put("orders", ordersObj.get(order.getCustomer()));
+                res.add(data);
+
+            }
+            // removing duplicates
+            Set<Object> setResponse = new HashSet<>(res);
+            ResponseDTO  response = AppUtils.getResponseDto("orders records fetched successfully", HttpStatus.OK, setResponse);
             return new ResponseEntity<>(response, HttpStatus.OK);
         } catch (Exception e) {
             log.error("Exception Occurred!, statusCode -> {} and Cause -> {} and Message -> {}", 500, e.getCause(), e.getMessage());

@@ -1,4 +1,4 @@
-package com.grocex_api.productService.dto;
+package com.grocex_api.paymentService.dto;
 
 public enum PaymentStatus {
     PAID,

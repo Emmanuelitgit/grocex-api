@@ -12,4 +12,6 @@ public interface OrderProjection{
     Integer getUnitPrice();
     Integer getTotalPrice();
     String getCustomer();
+    String getUsername();
+    String getEmail();
 }
