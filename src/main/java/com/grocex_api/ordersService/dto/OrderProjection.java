@@ -6,12 +6,13 @@ import java.util.UUID;
 
 @Repository
 public interface OrderProjection{
+    UUID getUserId();
+    String getCustomer();
+    String getUsername();
+    String getEmail();
     UUID getOrderId();
     String getProduct();
     Integer getQuantity();
     Integer getUnitPrice();
     Integer getTotalPrice();
-    String getCustomer();
-    String getUsername();
-    String getEmail();
 }

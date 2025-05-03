@@ -10,6 +10,7 @@ public interface OrderService {
     ResponseEntity<ResponseDTO> saveOrder(Order order);
     ResponseEntity<ResponseDTO> findAll();
     ResponseEntity<ResponseDTO> findOrderById(UUID orderId);
+    ResponseEntity<ResponseDTO> findOrderByUserId(UUID userId);
     ResponseEntity<ResponseDTO> updateOrder(Order order);
     ResponseEntity<ResponseDTO> removeOrder(UUID orderId);
 }

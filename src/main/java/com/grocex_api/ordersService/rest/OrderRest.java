@@ -7,6 +7,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.UUID;
+
 @RestController
 @RequestMapping("/api/v1/orders")
 public class OrderRest {
@@ -26,5 +28,25 @@ public class OrderRest {
     @GetMapping
     public ResponseEntity<ResponseDTO> findAll(){
         return orderService.findAll();
+    }
+
+    @GetMapping("/{orderId}")
+    public ResponseEntity<ResponseDTO> findOrderById(@PathVariable UUID orderId){
+        return orderService.findOrderById(orderId);
+    }
+
+    @GetMapping("/users/{userId}")
+    public ResponseEntity<ResponseDTO> findOrderByUserId(@PathVariable UUID userId){
+        return orderService.findOrderByUserId(userId);
+    }
+
+    @PutMapping
+    public ResponseEntity<ResponseDTO> updateOrder(Order order){
+        return orderService.updateOrder(order);
+    }
+
+    @DeleteMapping
+    public ResponseEntity<ResponseDTO> removeOrder(UUID orderId){
+        return orderService.removeOrder(orderId);
     }
 }

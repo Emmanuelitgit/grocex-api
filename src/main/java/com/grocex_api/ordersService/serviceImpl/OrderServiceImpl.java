@@ -9,6 +9,7 @@ import com.grocex_api.productService.dto.ProductProjection;
 import com.grocex_api.productService.models.Product;
 import com.grocex_api.productService.repo.ProductRepo;
 import com.grocex_api.response.ResponseDTO;
+import com.grocex_api.userService.models.User;
 import com.grocex_api.utils.AppUtils;
 import jakarta.transaction.Transactional;
 import lombok.extern.slf4j.Slf4j;
@@ -81,6 +82,12 @@ public class OrderServiceImpl implements OrderService {
 
     }
 
+    /**
+     * @description This method is used to fetch all orders from the db.
+     * @return
+     * @auther Emmanuel Yidana
+     * @createdAt 30h April 2025
+     */
     @Override
     public ResponseEntity<ResponseDTO> findAll() {
         try{
@@ -95,6 +102,7 @@ public class OrderServiceImpl implements OrderService {
             List<Object> res = new ArrayList<>();
             for (OrderProjection order:orders){
                 Map<String, Object> data = new HashMap<>();
+                data.put("userId", order.getUserId());
                 data.put("full name", order.getCustomer());
                 data.put("username", order.getUsername());
                 data.put("email", order.getEmail());
@@ -129,16 +137,152 @@ public class OrderServiceImpl implements OrderService {
 
     @Override
     public ResponseEntity<ResponseDTO> findOrderById(UUID orderId) {
-        return null;
+        try{
+            log.info("In get order method:->>>>>>");
+            OrderProjection order = orderRepo.getOrderDetailsById(orderId);
+            if (order == null){
+                log.error("no order record found:->>>>>>>{}", HttpStatus.NOT_FOUND);
+                ResponseDTO  response = AppUtils.getResponseDto("no order record found", HttpStatus.NOT_FOUND);
+                return new ResponseEntity<>(response, HttpStatus.NOT_FOUND);
+            }
+
+            Map<Object, List<Object>> ordersObj = new HashMap<>();
+            List<Object> res = new ArrayList<>();
+            Map<String, Object> data = new HashMap<>();
+            data.put("userId", order.getUserId());
+            data.put("full name", order.getCustomer());
+            data.put("username", order.getUsername());
+            data.put("email", order.getEmail());
+
+            if (!ordersObj.containsKey(order.getCustomer())){
+                ordersObj.put(order.getCustomer(), new ArrayList<>());
+            }
+
+            Map<String, Object> orderItems  = new HashMap<>();
+            orderItems.put("orderId", order.getOrderId());
+            orderItems.put("product", order.getProduct());
+            orderItems.put("unitPrice", order.getUnitPrice());
+            orderItems.put("quantity", order.getQuantity());
+            orderItems.put("totalPrice", order.getTotalPrice());
+
+            ordersObj.get(order.getCustomer()).add(orderItems);
+
+            data.put("orders", ordersObj.get(order.getCustomer()));
+            res.add(data);
+            // removing duplicates
+            Set<Object> setResponse = new HashSet<>(res);
+            ResponseDTO  response = AppUtils.getResponseDto("order records fetched successfully", HttpStatus.OK, setResponse);
+            return new ResponseEntity<>(response, HttpStatus.OK);
+        } catch (Exception e) {
+            log.error("Exception Occurred!, statusCode -> {} and Cause -> {} and Message -> {}", 500, e.getCause(), e.getMessage());
+            ResponseDTO  response = AppUtils.getResponseDto(e.getMessage(), HttpStatus.INTERNAL_SERVER_ERROR);
+            return new ResponseEntity<>(response, HttpStatus.INTERNAL_SERVER_ERROR);
+        }
     }
 
     @Override
+    public ResponseEntity<ResponseDTO> findOrderByUserId(UUID userId) {
+        try{
+            log.info("In get order method:->>>>>>");
+            OrderProjection order = orderRepo.getOrderDetailsByUserId(userId);
+            if (order == null){
+                log.error("no order record found:->>>>>>>{}", HttpStatus.NOT_FOUND);
+                ResponseDTO  response = AppUtils.getResponseDto("no order record found", HttpStatus.NOT_FOUND);
+                return new ResponseEntity<>(response, HttpStatus.NOT_FOUND);
+            }
+
+            Map<Object, List<Object>> ordersObj = new HashMap<>();
+            List<Object> res = new ArrayList<>();
+            Map<String, Object> data = new HashMap<>();
+            data.put("userId", order.getUserId());
+            data.put("full name", order.getCustomer());
+            data.put("username", order.getUsername());
+            data.put("email", order.getEmail());
+
+            if (!ordersObj.containsKey(order.getCustomer())){
+                ordersObj.put(order.getCustomer(), new ArrayList<>());
+            }
+
+            Map<String, Object> orderItems  = new HashMap<>();
+            orderItems.put("orderId", order.getOrderId());
+            orderItems.put("product", order.getProduct());
+            orderItems.put("unitPrice", order.getUnitPrice());
+            orderItems.put("quantity", order.getQuantity());
+            orderItems.put("totalPrice", order.getTotalPrice());
+
+            ordersObj.get(order.getCustomer()).add(orderItems);
+
+            data.put("orders", ordersObj.get(order.getCustomer()));
+            res.add(data);
+            // removing duplicates
+            Set<Object> setResponse = new HashSet<>(res);
+            ResponseDTO  response = AppUtils.getResponseDto("order records fetched successfully", HttpStatus.OK, setResponse);
+            return new ResponseEntity<>(response, HttpStatus.OK);
+        } catch (Exception e) {
+            log.error("Exception Occurred!, statusCode -> {} and Cause -> {} and Message -> {}", 500, e.getCause(), e.getMessage());
+            ResponseDTO  response = AppUtils.getResponseDto(e.getMessage(), HttpStatus.INTERNAL_SERVER_ERROR);
+            return new ResponseEntity<>(response, HttpStatus.INTERNAL_SERVER_ERROR);
+        }
+    }
+
+    @Transactional
+    @Override
     public ResponseEntity<ResponseDTO> updateOrder(Order order) {
-        return null;
+       try{
+           log.info("In update order method:->>>>>>");
+           Optional<Order> orderOptional = orderRepo.findById(order.getId());
+           if (orderOptional.isEmpty()){
+               ResponseDTO  response = AppUtils.getResponseDto("no user record found", HttpStatus.NOT_FOUND);
+               return new ResponseEntity<>(response, HttpStatus.NOT_FOUND);
+           }
+
+           Optional<Product> productOptional = productRepo.findById(order.getProductId());
+           if (productOptional.isEmpty()){
+               ResponseDTO  response = AppUtils.getResponseDto("no user record found", HttpStatus.NOT_FOUND);
+               return new ResponseEntity<>(response, HttpStatus.NOT_FOUND);
+           }
+           Product product = productOptional.get();
+
+           // calculating quantities and total price.
+           int totalPrice = order.getUnitPrice()*order.getQuantity();
+           int previousQuantity = orderOptional.get().getQuantity() + product.getQuantity();
+           int remainingQuantity = previousQuantity-order.getQuantity();
+           product.setQuantity(remainingQuantity);
+           productRepo.save(product);
+
+           // updating the existing order record with the updated info.
+           Order existingOrderData = orderOptional.get();
+           existingOrderData.setQuantity(order.getQuantity());
+           existingOrderData.setTotalPrice(totalPrice);
+           orderRepo.save(existingOrderData);
+
+           log.info("order updated successfully:->>>>>>");
+           ResponseDTO  response = AppUtils.getResponseDto("order record updated successfully", HttpStatus.OK);
+           return new ResponseEntity<>(response, HttpStatus.OK);
+       }catch (Exception e) {
+           log.error("Exception Occurred!, statusCode -> {} and Cause -> {} and Message -> {}", 500, e.getCause(), e.getMessage());
+           ResponseDTO  response = AppUtils.getResponseDto("Internal server error", HttpStatus.INTERNAL_SERVER_ERROR);
+           return new ResponseEntity<>(response, HttpStatus.INTERNAL_SERVER_ERROR);
+       }
     }
 
     @Override
     public ResponseEntity<ResponseDTO> removeOrder(UUID orderId) {
-        return null;
+        try {
+            log.info("In remove order method:->>>>>>");
+            Optional<Order> orderOptional = orderRepo.findById(orderId);
+            if (orderOptional.isEmpty()){
+                ResponseDTO  response = AppUtils.getResponseDto("no user record found", HttpStatus.NOT_FOUND);
+                return new ResponseEntity<>(response, HttpStatus.NOT_FOUND);
+            }
+            orderRepo.deleteById(orderId);
+            log.info("order removed successfully:->>>>>>");
+            ResponseDTO  response = AppUtils.getResponseDto("order record removed successfully", HttpStatus.OK);
+            return new ResponseEntity<>(response, HttpStatus.OK);
+        } catch (Exception e) {
+            log.error("Exception Occurred!, statusCode -> {} and Cause -> {} and Message -> {}", 500, e.getCause(), e.getMessage());
+            ResponseDTO  response = AppUtils.getResponseDto("Internal server error", HttpStatus.INTERNAL_SERVER_ERROR);
+            return new ResponseEntity<>(response, HttpStatus.INTERNAL_SERVER_ERROR);
+        }
     }
 }
