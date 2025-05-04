@@ -18,5 +18,5 @@ public class Order {
     private int unitPrice;
     private int totalPrice;
     private int quantity;
-    private OrderStatus status;
+    private String status;
 }

@@ -7,6 +7,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.List;
 import java.util.UUID;
 
 @RestController
@@ -21,8 +22,8 @@ public class OrderRest {
     }
 
     @PostMapping
-    public ResponseEntity<ResponseDTO> saveOrder(@RequestBody Order order){
-        return orderService.saveOrder(order);
+    public ResponseEntity<ResponseDTO> saveOrder(@RequestBody List<Order> orders){
+        return orderService.saveOrder(orders);
     }
 
     @GetMapping

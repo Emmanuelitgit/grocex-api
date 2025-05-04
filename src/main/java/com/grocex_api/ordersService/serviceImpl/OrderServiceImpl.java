@@ -35,44 +35,54 @@ public class OrderServiceImpl implements OrderService {
 
     /**
      * @description This method is used to save order to the db given the required parameters.
-     * @param order
+     * @param orders
      * @return
      * @auther Emmanuel Yidana
      * @createdAt 30h April 2025
      */
     @Transactional
     @Override
-    public ResponseEntity<ResponseDTO> saveOrder(Order order) {
+    public ResponseEntity<ResponseDTO> saveOrder(List<Order> orders) {
         try{
             log.info("In place order method:->>>>>>>>");
-            Optional<Product> productOptional = productRepo.findById(order.getProductId());
-            if (productOptional.isEmpty()){
-                log.error("no product record found:->>>>>>>{}", HttpStatus.NOT_FOUND);
-                ResponseDTO  response = AppUtils.getResponseDto("no product record found", HttpStatus.NOT_FOUND);
-                return new ResponseEntity<>(response, HttpStatus.NOT_FOUND);
-            }
-            // checking if the order quantity exceed the available quantity of product
-            Product product = productOptional.get();
-            if (order.getQuantity()>product.getQuantity()){
-                ResponseDTO  response = AppUtils.getResponseDto("order quantity exceeds product availability", HttpStatus.BAD_REQUEST);
-                return new ResponseEntity<>(response, HttpStatus.BAD_REQUEST);
-            }
+           if (orders.isEmpty()){
+               log.error("order payload cannot be be null{}", HttpStatus.BAD_REQUEST);
+               ResponseDTO  response = AppUtils.getResponseDto("order payload cannot be null", HttpStatus.BAD_REQUEST);
+               return new ResponseEntity<>(response, HttpStatus.BAD_REQUEST);
+           }
+           List<Order>res = new ArrayList<>();
+           for (Order order: orders){
+               Optional<Product> productOptional = productRepo.findById(order.getProductId());
+               if (productOptional.isEmpty()){
+                   log.error("no product record found:->>>>>>>{}", HttpStatus.NOT_FOUND);
+                   ResponseDTO  response = AppUtils.getResponseDto("no product record found", HttpStatus.NOT_FOUND);
+                   return new ResponseEntity<>(response, HttpStatus.NOT_FOUND);
+               }
+               // checking if the order quantity exceed the available quantity of product
+               Product product = productOptional.get();
+               if (order.getQuantity()>product.getQuantity()){
+                   log.error("\"order quantity exceeds product availability for:->>\" + \" \" + product.getName(){}", HttpStatus.BAD_REQUEST);
+                   ResponseDTO  response = AppUtils.getResponseDto("order quantity exceeds product availability for:->>" + " " + product.getName(), HttpStatus.BAD_REQUEST);
+                   return new ResponseEntity<>(response, HttpStatus.BAD_REQUEST);
+               }
 
-            // deducting the order quantity from the product quantity to get the remaining quantity.
-            int quantityRemaining = product.getQuantity()- order.getQuantity();
-            product.setQuantity(quantityRemaining);
+               // deducting the order quantity from the product quantity to get the remaining quantity.
+               int quantityRemaining = product.getQuantity()- order.getQuantity();
+               product.setQuantity(quantityRemaining);
 
-            // calculating the order total price
-            int orderTotalPrice = order.getQuantity()*product.getUnitPrice();
+               // calculating the order total price
+               int orderTotalPrice = order.getQuantity()*product.getUnitPrice();
 
-            // setting the order updated details
-            order.setTotalPrice(orderTotalPrice);
-            order.setUnitPrice(product.getUnitPrice());
-            order.setStatus(OrderStatus.PENDING);
-            Order orderRes = orderRepo.save(order);
-            productRepo.save(product);
+               // setting the order updated details
+               order.setTotalPrice(orderTotalPrice);
+               order.setUnitPrice(product.getUnitPrice());
+               order.setStatus(OrderStatus.PENDING.toString());
+               Order orderRes = orderRepo.save(order);
+               res.add(orderRes);
+               productRepo.save(product);
+           }
 
-            ResponseDTO  response = AppUtils.getResponseDto("product ordered successfully", HttpStatus.CREATED, orderRes);
+            ResponseDTO  response = AppUtils.getResponseDto("product ordered successfully", HttpStatus.CREATED, res);
             return new ResponseEntity<>(response, HttpStatus.OK);
         }  catch (Exception e) {
             log.error("Exception Occurred!, statusCode -> {} and Cause -> {} and Message -> {}", 500, e.getCause(), e.getMessage());
@@ -117,6 +127,7 @@ public class OrderServiceImpl implements OrderService {
                 orderItems.put("unitPrice", order.getUnitPrice());
                 orderItems.put("quantity", order.getQuantity());
                 orderItems.put("totalPrice", order.getTotalPrice());
+                orderItems.put("status", order.getStatus());
 
                 ordersObj.get(order.getCustomer()).add(orderItems);
 
