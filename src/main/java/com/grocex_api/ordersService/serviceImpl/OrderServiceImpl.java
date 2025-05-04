@@ -1,8 +1,11 @@
 package com.grocex_api.ordersService.serviceImpl;
 
+import com.grocex_api.ordersService.dto.OrderPayload;
 import com.grocex_api.ordersService.dto.OrderProjection;
 import com.grocex_api.ordersService.models.Order;
+import com.grocex_api.ordersService.models.ProductOrder;
 import com.grocex_api.ordersService.repo.OrderRepo;
+import com.grocex_api.ordersService.repo.ProductOrderRepo;
 import com.grocex_api.ordersService.service.OrderService;
 import com.grocex_api.productService.dto.OrderStatus;
 import com.grocex_api.productService.dto.ProductProjection;
@@ -26,11 +29,13 @@ public class OrderServiceImpl implements OrderService {
 
     private final OrderRepo orderRepo;
     private final ProductRepo productRepo;
+    private final ProductOrderRepo productOrderRepo;
 
     @Autowired
-    public OrderServiceImpl(OrderRepo orderRepo, ProductRepo productRepo) {
+    public OrderServiceImpl(OrderRepo orderRepo, ProductRepo productRepo, ProductOrderRepo productOrderRepo) {
         this.orderRepo = orderRepo;
         this.productRepo = productRepo;
+        this.productOrderRepo = productOrderRepo;
     }
 
     /**
@@ -42,7 +47,7 @@ public class OrderServiceImpl implements OrderService {
      */
     @Transactional
     @Override
-    public ResponseEntity<ResponseDTO> saveOrder(List<Order> orders) {
+    public ResponseEntity<ResponseDTO> saveOrder(List<OrderPayload> orders) {
         try{
             log.info("In place order method:->>>>>>>>");
            if (orders.isEmpty()){
@@ -50,8 +55,30 @@ public class OrderServiceImpl implements OrderService {
                ResponseDTO  response = AppUtils.getResponseDto("order payload cannot be null", HttpStatus.BAD_REQUEST);
                return new ResponseEntity<>(response, HttpStatus.BAD_REQUEST);
            }
-           List<Order>res = new ArrayList<>();
-           for (Order order: orders){
+
+           // grouping all order details as one order.
+            int entireOrderTotalPrice = 0;
+            UUID customerId = null;
+           for (OrderPayload orderPayload:orders){
+               Optional<Product> productOptional = productRepo.findById(orderPayload.getProductId());
+              if (productOptional.isPresent()){
+                  int totalPrice = calculateTotalPrice(productOptional.get().getUnitPrice(), orderPayload.getQuantity());
+                  entireOrderTotalPrice +=totalPrice;
+                  customerId = orderPayload.getCustomerId();
+              }
+
+           }
+           // saving to the order table
+           Order generalOrder = new Order();
+           generalOrder.setTotalPrice(entireOrderTotalPrice);
+           generalOrder.setStatus(OrderStatus.PENDING.toString());
+           generalOrder.setCustomerId(customerId);
+           Order oderRes = orderRepo.save(generalOrder);
+
+
+           // an looping and setting specific product order
+           List<ProductOrder>res = new ArrayList<>();
+           for (OrderPayload order: orders){
                Optional<Product> productOptional = productRepo.findById(order.getProductId());
                if (productOptional.isEmpty()){
                    log.error("no product record found:->>>>>>>{}", HttpStatus.NOT_FOUND);
@@ -67,18 +94,21 @@ public class OrderServiceImpl implements OrderService {
                }
 
                // deducting the order quantity from the product quantity to get the remaining quantity.
-               int quantityRemaining = product.getQuantity()- order.getQuantity();
-               product.setQuantity(quantityRemaining);
+               int productQuantityRemaining = product.getQuantity()- order.getQuantity();
+               product.setQuantity(productQuantityRemaining);
 
-               // calculating the order total price
-               int orderTotalPrice = order.getQuantity()*product.getUnitPrice();
+               // calculating the product order total price
+               int productOrderTotalPrice = calculateTotalPrice(product.getUnitPrice(), order.getQuantity());
 
-               // setting the order updated details
-               order.setTotalPrice(orderTotalPrice);
-               order.setUnitPrice(product.getUnitPrice());
-               order.setStatus(OrderStatus.PENDING.toString());
-               Order orderRes = orderRepo.save(order);
-               res.add(orderRes);
+               // setting the specific product order updated details
+               ProductOrder productOrder = new ProductOrder();
+               productOrder.setTotalPrice(productOrderTotalPrice);
+               productOrder.setUnitPrice(product.getUnitPrice());
+               productOrder.setProductId(order.getProductId());
+               productOrder.setQuantity(order.getQuantity());
+               productOrder.setOrderId(oderRes.getId());
+               ProductOrder productOrderRes = productOrderRepo.save(productOrder);
+               res.add(productOrderRes);
                productRepo.save(product);
            }
 
@@ -90,6 +120,10 @@ public class OrderServiceImpl implements OrderService {
             return new ResponseEntity<>(response, HttpStatus.INTERNAL_SERVER_ERROR);
         }
 
+    }
+
+    private int calculateTotalPrice(int price, int quantity){
+        return price*quantity;
     }
 
     /**
@@ -238,34 +272,42 @@ public class OrderServiceImpl implements OrderService {
 
     @Transactional
     @Override
-    public ResponseEntity<ResponseDTO> updateOrder(Order order) {
+    public ResponseEntity<ResponseDTO> updateOrder(OrderPayload orderPayload) {
        try{
            log.info("In update order method:->>>>>>");
-           Optional<Order> orderOptional = orderRepo.findById(order.getId());
+           Optional<Order> orderOptional = orderRepo.findById(orderPayload.getOrderId());
            if (orderOptional.isEmpty()){
-               ResponseDTO  response = AppUtils.getResponseDto("no user record found", HttpStatus.NOT_FOUND);
+               ResponseDTO  response = AppUtils.getResponseDto("no order record found", HttpStatus.NOT_FOUND);
                return new ResponseEntity<>(response, HttpStatus.NOT_FOUND);
            }
+           Order existingOrder = orderOptional.get();
 
-           Optional<Product> productOptional = productRepo.findById(order.getProductId());
+           Optional<Product> productOptional = productRepo.findById(orderPayload.getProductId());
            if (productOptional.isEmpty()){
                ResponseDTO  response = AppUtils.getResponseDto("no user record found", HttpStatus.NOT_FOUND);
                return new ResponseEntity<>(response, HttpStatus.NOT_FOUND);
            }
-           Product product = productOptional.get();
+           Product existingProduct = productOptional.get();
 
-           // calculating quantities and total price.
-           int totalPrice = order.getUnitPrice()*order.getQuantity();
-           int previousQuantity = orderOptional.get().getQuantity() + product.getQuantity();
-           int remainingQuantity = previousQuantity-order.getQuantity();
-           product.setQuantity(remainingQuantity);
-           productRepo.save(product);
+           ProductOrder productOrder = productOrderRepo.findByOrderId(orderPayload.getOrderId());
+           if (productOrder == null){
+               ResponseDTO  response = AppUtils.getResponseDto("no product order record found", HttpStatus.NOT_FOUND);
+               return new ResponseEntity<>(response, HttpStatus.NOT_FOUND);
+           }
 
-           // updating the existing order record with the updated info.
-           Order existingOrderData = orderOptional.get();
-           existingOrderData.setQuantity(order.getQuantity());
-           existingOrderData.setTotalPrice(totalPrice);
-           orderRepo.save(existingOrderData);
+           int updatedProductOrderTotalPrice = calculateTotalPrice(existingProduct.getUnitPrice(), orderPayload.getQuantity());
+           int previousProductQuantity = productOrder.getQuantity()+existingProduct.getQuantity();
+           int updatedProductQuantity = previousProductQuantity - orderPayload.getQuantity();
+
+           productOrder.setTotalPrice(updatedProductOrderTotalPrice);
+           productOrder.setQuantity(updatedProductQuantity);
+           productOrderRepo.save(productOrder);
+
+           int orderTotalPrice = existingOrder.getTotalPrice()-productOrder.getTotalPrice();
+           int updatedOrderTotalPrice = orderTotalPrice + updatedProductOrderTotalPrice;
+
+           existingOrder.setTotalPrice(updatedOrderTotalPrice);
+           orderRepo.save(existingOrder);
 
            log.info("order updated successfully:->>>>>>");
            ResponseDTO  response = AppUtils.getResponseDto("order record updated successfully", HttpStatus.OK);

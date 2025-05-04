@@ -1,6 +1,5 @@
 package com.grocex_api.ordersService.models;
 
-import com.grocex_api.productService.dto.OrderStatus;
 import jakarta.persistence.*;
 import lombok.Data;
 
@@ -8,12 +7,14 @@ import java.util.UUID;
 
 @Entity
 @Data
-@Table(name = "order_tb")
-public class Order {
+@Table(name = "product_order_tb")
+public class ProductOrder {
     @Id
     @GeneratedValue(strategy = GenerationType.UUID)
     private UUID id;
-    private UUID customerId;
+    private UUID productId;
+    private UUID orderId;
+    private int unitPrice;
     private int totalPrice;
-    private String status;
+    private int quantity;
 }

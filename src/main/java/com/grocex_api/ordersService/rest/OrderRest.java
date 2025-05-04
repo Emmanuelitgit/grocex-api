@@ -1,5 +1,6 @@
 package com.grocex_api.ordersService.rest;
 
+import com.grocex_api.ordersService.dto.OrderPayload;
 import com.grocex_api.ordersService.models.Order;
 import com.grocex_api.ordersService.serviceImpl.OrderServiceImpl;
 import com.grocex_api.response.ResponseDTO;
@@ -22,7 +23,7 @@ public class OrderRest {
     }
 
     @PostMapping
-    public ResponseEntity<ResponseDTO> saveOrder(@RequestBody List<Order> orders){
+    public ResponseEntity<ResponseDTO> saveOrder(@RequestBody List<OrderPayload> orders){
         return orderService.saveOrder(orders);
     }
 
@@ -42,7 +43,7 @@ public class OrderRest {
     }
 
     @PutMapping
-    public ResponseEntity<ResponseDTO> updateOrder(Order order){
+    public ResponseEntity<ResponseDTO> updateOrder(OrderPayload order){
         return orderService.updateOrder(order);
     }
 
