@@ -85,8 +85,15 @@ public class OrderServiceImpl implements OrderService {
                    ResponseDTO  response = AppUtils.getResponseDto("no product record found", HttpStatus.NOT_FOUND);
                    return new ResponseEntity<>(response, HttpStatus.NOT_FOUND);
                }
-               // checking if the order quantity exceed the available quantity of product
+
+               // checking for product availability
                Product product = productOptional.get();
+               if (product.getQuantity()==0){
+                   log.error("\"product out of stock:->>\" + \" \" + product.getName(){}", HttpStatus.BAD_REQUEST);
+                   ResponseDTO  response = AppUtils.getResponseDto("order quantity exceeds product availability for:->>" + " " + product.getName(), HttpStatus.BAD_REQUEST);
+                   return new ResponseEntity<>(response, HttpStatus.BAD_REQUEST);
+               }
+               // checking if the order quantity exceed the available quantity of product
                if (order.getQuantity()>product.getQuantity()){
                    log.error("\"order quantity exceeds product availability for:->>\" + \" \" + product.getName(){}", HttpStatus.BAD_REQUEST);
                    ResponseDTO  response = AppUtils.getResponseDto("order quantity exceeds product availability for:->>" + " " + product.getName(), HttpStatus.BAD_REQUEST);
@@ -164,10 +171,8 @@ public class OrderServiceImpl implements OrderService {
                 orderItems.put("status", order.getStatus());
 
                 ordersObj.get(order.getCustomer()).add(orderItems);
-
                 data.put("orders", ordersObj.get(order.getCustomer()));
                 res.add(data);
-
             }
             // removing duplicates
             Set<Object> setResponse = new HashSet<>(res);

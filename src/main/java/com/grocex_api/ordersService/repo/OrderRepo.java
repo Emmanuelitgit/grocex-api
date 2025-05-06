@@ -12,18 +12,21 @@ import java.util.UUID;
 @Repository
 public interface OrderRepo extends JpaRepository<Order, UUID> {
 
-    @Query(value = "SELECT BIN_TO_UUID(o.id) AS orderId, p.name AS product, o.total_price, o.quantity, o.unit_price, o.status, BIN_TO_UUID(u.id) AS userId, CONCAT(u.first_name, ' ', u.last_name) AS customer, u.username, u.email FROM order_tb o " +
-            "JOIN product p ON o.product_id=p.id " +
+    @Query(value = "SELECT BIN_TO_UUID(o.id) AS orderId, o.status, p.name AS product, po.unit_price, po.quantity, po.total_price, o.total_price AS totals, BIN_TO_UUID(u.id) AS userId, CONCAT(u.first_name, ' ', u.last_name) AS customer, u.username, u.email FROM product_order_tb po " +
+            "JOIN product p ON po.product_id=p.id " +
+            "JOIN order_tb o ON o.id=po.order_id " +
             "JOIN user_tb u ON u.id=o.customer_id ", nativeQuery = true)
     List<OrderProjection> getOrderDetails();
 
-    @Query(value = "SELECT BIN_TO_UUID(o.id) AS orderId, p.name AS product, o.total_price, o.quantity, o.unit_price, o.status, BIN_TO_UUID(u.id) AS userId, CONCAT(u.first_name, ' ', u.last_name) AS customer, u.username, u.email FROM order_tb o " +
-            "JOIN product p ON o.product_id=p.id " +
+    @Query(value = "SELECT BIN_TO_UUID(o.id) AS orderId, o.status, p.name AS product, po.unit_price, po.quantity, po.total_price, o.total_price AS totals, BIN_TO_UUID(u.id) AS userId, CONCAT(u.first_name, ' ', u.last_name) AS customer, u.username, u.email FROM product_order_tb po " +
+            "JOIN product p ON po.product_id=p.id " +
+            "JOIN order_tb o ON o.id=po.order_id " +
             "JOIN user_tb u ON u.id=o.customer_id WHERE o.id=? ", nativeQuery = true)
     OrderProjection getOrderDetailsById(UUID orderId);
 
-    @Query(value = "SELECT BIN_TO_UUID(o.id) AS orderId, p.name AS product, o.total_price, o.quantity, o.unit_price, o.status, BIN_TO_UUID(u.id) AS userId, CONCAT(u.first_name, ' ', u.last_name) AS customer, u.username, u.email FROM order_tb o " +
-            "JOIN product p ON o.product_id=p.id " +
+    @Query(value = "SELECT BIN_TO_UUID(o.id) AS orderId, o.status, p.name AS product, po.unit_price, po.quantity, po.total_price, o.total_price AS totals, BIN_TO_UUID(u.id) AS userId, CONCAT(u.first_name, ' ', u.last_name) AS customer, u.username, u.email FROM product_order_tb po " +
+            "JOIN product p ON po.product_id=p.id " +
+            "JOIN order_tb o ON o.id=po.order_id " +
             "JOIN user_tb u ON u.id=o.customer_id WHERE u.id=? ", nativeQuery = true)
     OrderProjection getOrderDetailsByUserId(UUID userId);
 }

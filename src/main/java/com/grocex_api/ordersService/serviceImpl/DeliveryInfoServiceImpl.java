@@ -1,7 +1,9 @@
 package com.grocex_api.ordersService.serviceImpl;
 
 import com.grocex_api.ordersService.models.DeliveryInfo;
+import com.grocex_api.ordersService.models.Order;
 import com.grocex_api.ordersService.repo.DeliveryInfoRepo;
+import com.grocex_api.ordersService.repo.OrderRepo;
 import com.grocex_api.ordersService.service.DeliveryInfoService;
 import com.grocex_api.response.ResponseDTO;
 import com.grocex_api.userService.dto.UserDTOProjection;
@@ -21,10 +23,12 @@ import java.util.UUID;
 public class DeliveryInfoServiceImpl implements DeliveryInfoService {
 
     private final DeliveryInfoRepo deliveryInfoRepo;
+    private final OrderRepo orderRepo;
 
     @Autowired
-    public DeliveryInfoServiceImpl(DeliveryInfoRepo deliveryInfoRepo) {
+    public DeliveryInfoServiceImpl(DeliveryInfoRepo deliveryInfoRepo, OrderRepo orderRepo) {
         this.deliveryInfoRepo = deliveryInfoRepo;
+        this.orderRepo = orderRepo;
     }
 
     /**
@@ -42,6 +46,13 @@ public class DeliveryInfoServiceImpl implements DeliveryInfoService {
               log.error("delivery info payload cannot be be null{}", HttpStatus.BAD_REQUEST);
               ResponseDTO  response = AppUtils.getResponseDto("delivery infopayload cannot be null", HttpStatus.BAD_REQUEST);
               return new ResponseEntity<>(response, HttpStatus.BAD_REQUEST);
+          }
+
+          Optional<Order> orderOptional = orderRepo.findById(deliveryInfo.getOrderId());
+          if (orderOptional.isEmpty()){
+              log.error("order record not found:->>>>{}", HttpStatus.NOT_FOUND);
+              ResponseDTO  response = AppUtils.getResponseDto("order record not found", HttpStatus.NOT_FOUND);
+              return new ResponseEntity<>(response, HttpStatus.NOT_FOUND);
           }
 
           DeliveryInfo deliveryInfoRes = deliveryInfoRepo.save(deliveryInfo);

@@ -17,4 +17,5 @@ public interface OrderProjection{
     Integer getUnitPrice();
     Integer getTotalPrice();
     String getStatus();
+    Integer getTotals();
 }
