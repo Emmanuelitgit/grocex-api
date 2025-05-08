@@ -98,7 +98,33 @@ public class ProductServiceImpl implements ProductService {
                 ResponseDTO  response = AppUtils.getResponseDto("no product record found", HttpStatus.NOT_FOUND);
                 return new ResponseEntity<>(response, HttpStatus.NOT_FOUND);
             }
-            ResponseDTO  response = AppUtils.getResponseDto("user records fetched successfully", HttpStatus.OK, product);
+            ResponseDTO  response = AppUtils.getResponseDto("product records fetched successfully", HttpStatus.OK, product);
+            return new ResponseEntity<>(response, HttpStatus.OK);
+        } catch (Exception e) {
+            log.error("Exception Occurred!, statusCode -> {} and Cause -> {} and Message -> {}", 500, e.getCause(), e.getMessage());
+            ResponseDTO  response = AppUtils.getResponseDto("Internal server error", HttpStatus.INTERNAL_SERVER_ERROR);
+            return new ResponseEntity<>(response, HttpStatus.INTERNAL_SERVER_ERROR);
+        }
+    }
+
+    /**
+     * @description This method is used to get product records given the product category.
+     * @param category
+     * @return
+     * @auther Emmanuel Yidana
+     * @createdAt 5th May 2025
+     */
+    @Override
+    public ResponseEntity<ResponseDTO> findProductByCategory(String category) {
+        try{
+            log.info("In get product by category method:->>>>>>");
+            List<ProductProjection> product = productRepo.getProductByCategory(category);
+            if (product.isEmpty()){
+                log.error("no product record found:->>>>>>>{}", HttpStatus.NOT_FOUND);
+                ResponseDTO  response = AppUtils.getResponseDto("no product record found", HttpStatus.NOT_FOUND);
+                return new ResponseEntity<>(response, HttpStatus.NOT_FOUND);
+            }
+            ResponseDTO  response = AppUtils.getResponseDto("product records fetched successfully", HttpStatus.OK, product);
             return new ResponseEntity<>(response, HttpStatus.OK);
         } catch (Exception e) {
             log.error("Exception Occurred!, statusCode -> {} and Cause -> {} and Message -> {}", 500, e.getCause(), e.getMessage());

@@ -42,6 +42,12 @@ public interface UserRepo extends JpaRepository<User, UUID> {
             "JOIN category_tb c ON c.id = p.category_id ", nativeQuery = true)
     List<UserProductProjection> getUsersAndProducts();
 
+    @Query(value = "SELECT rs.name AS role FROM user_role_tb ur " +
+            "JOIN user_tb u ON u.id=ur.user_id " +
+            "JOIN role_setup_tb rs ON rs.id=ur.role_id " +
+            "WHERE u.email =? ", nativeQuery = true)
+    UserDTOProjection getUserRole(String username);
+
     Optional<User> findUserByUsername(String username);
 
     Optional<User> findUserByEmail(String email);

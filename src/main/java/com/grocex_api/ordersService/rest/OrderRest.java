@@ -4,13 +4,16 @@ import com.grocex_api.ordersService.dto.OrderPayload;
 import com.grocex_api.ordersService.models.Order;
 import com.grocex_api.ordersService.serviceImpl.OrderServiceImpl;
 import com.grocex_api.response.ResponseDTO;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 import java.util.UUID;
 
+@Slf4j
 @RestController
 @RequestMapping("/api/v1/orders")
 public class OrderRest {
@@ -29,6 +32,7 @@ public class OrderRest {
 
     @GetMapping
     public ResponseEntity<ResponseDTO> findAll(){
+        log.info("Authentication:->>>{}", SecurityContextHolder.getContext().getAuthentication());
         return orderService.findAll();
     }
 

@@ -95,7 +95,7 @@ public class OrderServiceImpl implements OrderService {
                }
                // checking if the order quantity exceed the available quantity of product
                if (order.getQuantity()>product.getQuantity()){
-                   log.error("\"order quantity exceeds product availability for:->>\" + \" \" + product.getName(){}", HttpStatus.BAD_REQUEST);
+                   log.error("order quantity exceeds product availability for:-->>>>{}" + " " + product.getName(), HttpStatus.BAD_REQUEST);
                    ResponseDTO  response = AppUtils.getResponseDto("order quantity exceeds product availability for:->>" + " " + product.getName(), HttpStatus.BAD_REQUEST);
                    return new ResponseEntity<>(response, HttpStatus.BAD_REQUEST);
                }
@@ -302,6 +302,18 @@ public class OrderServiceImpl implements OrderService {
 
            int updatedProductOrderTotalPrice = calculateTotalPrice(existingProduct.getUnitPrice(), orderPayload.getQuantity());
            int previousProductQuantity = productOrder.getQuantity()+existingProduct.getQuantity();
+
+           if (existingProduct.getQuantity()==0){
+               log.error("product out of stock:->>>>>>{}", HttpStatus.BAD_REQUEST);
+               ResponseDTO  response = AppUtils.getResponseDto("product out of stock", HttpStatus.BAD_REQUEST);
+               return new ResponseEntity<>(response, HttpStatus.BAD_REQUEST);
+           }
+
+           if (orderPayload.getQuantity()>previousProductQuantity){
+               log.error("\"order quantity exceeds product availability for:->>\" + \" \" + product.getName(){}", HttpStatus.BAD_REQUEST);
+               ResponseDTO  response = AppUtils.getResponseDto("order quantity exceeds product availability for:->>" + " " + existingProduct.getName(), HttpStatus.BAD_REQUEST);
+               return new ResponseEntity<>(response, HttpStatus.BAD_REQUEST);
+           }
            int updatedProductQuantity = previousProductQuantity - orderPayload.getQuantity();
 
            productOrder.setTotalPrice(updatedProductOrderTotalPrice);

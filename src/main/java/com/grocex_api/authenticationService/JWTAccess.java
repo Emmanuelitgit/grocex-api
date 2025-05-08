@@ -70,7 +70,9 @@ public class JWTAccess {
      * @return username
      */
     public String extractUsername(String token){
+        log.info("TOKEN:->>>{}", token);
         Claims claims = getClaims(token);
+        log.info("CLAIMS:->>>{}", claims);
         return claims.getSubject();
     }
 

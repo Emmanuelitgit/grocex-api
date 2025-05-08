@@ -37,6 +37,11 @@ public class ProductRest {
         return productService.findProductById(productId);
     }
 
+    @GetMapping("/category/{category}")
+    public ResponseEntity<ResponseDTO> findProductByCategory(@PathVariable String category){
+        return productService.findProductByCategory(category);
+    }
+
     @PutMapping
     public ResponseEntity<ResponseDTO> updateProduct(@RequestBody Product product){
         return productService.updateProduct(product);

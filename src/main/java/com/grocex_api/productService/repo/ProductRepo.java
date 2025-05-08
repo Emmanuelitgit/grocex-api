@@ -19,4 +19,8 @@ public interface ProductRepo extends JpaRepository<Product, UUID> {
     @Query(value = "SELECT BIN_TO_UUID(p.id) AS id, p.name AS product, p.unit_price, p.quantity, ct.name As category FROM product p " +
             "JOIN category_tb ct on p.category_id = ct.id WHERE p.id=? ", nativeQuery = true)
     ProductProjection getProductAndCategoryById(UUID productId);
+
+    @Query(value = "SELECT BIN_TO_UUID(p.id) AS id, p.name AS product, p.unit_price, p.quantity, ct.name As category FROM product p " +
+            "JOIN category_tb ct on p.category_id = ct.id WHERE ct.name=? ", nativeQuery = true)
+    List<ProductProjection > getProductByCategory(String category);
 }
