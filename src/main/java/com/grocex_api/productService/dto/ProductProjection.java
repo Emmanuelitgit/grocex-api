@@ -8,4 +8,5 @@ public interface ProductProjection {
     Integer getUnitPrice();
     Integer getQuantity();
     String getCategory();
+    String getVendor();
 }

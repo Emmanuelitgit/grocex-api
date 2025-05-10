@@ -9,5 +9,6 @@ public interface UserDTOProjection {
     String getEmail();
     Integer getPhone();
     String getUsername();
+    String getVendor();
     String getRole();
 }

@@ -26,7 +26,7 @@ public class Product {
     private int unitPrice;
     private UUID categoryId;
     private UUID fileId;
-    private UUID ratingId;
+    private Integer rating;
     private UUID productOwnerId;
     private UUID createdBy;
     private ZonedDateTime createdAt;

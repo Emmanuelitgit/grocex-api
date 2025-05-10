@@ -5,10 +5,12 @@ import com.grocex_api.productService.serviceImpl.ProductServiceImpl;
 import com.grocex_api.response.ResponseDTO;
 import com.grocex_api.userService.dto.UserPayloadDTO;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatusCode;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
+import java.util.List;
 import java.util.UUID;
 
 @RestController
@@ -50,5 +52,10 @@ public class ProductRest {
     @DeleteMapping
     public ResponseEntity<ResponseDTO> removeProduct(@RequestBody Product product){
         return productService.removeProduct(product.getId());
+    }
+
+    @GetMapping("/vendor/{vendor}")
+    public ResponseEntity<ResponseDTO> findProductByVendor(@PathVariable String vendor){
+        return productService.findProductByVendor(vendor);
     }
 }

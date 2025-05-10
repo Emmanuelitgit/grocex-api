@@ -227,6 +227,7 @@ public class UserServiceImpl implements UserService {
               data.put("id", userProduct.getUserId());
               data.put("email", userProduct.getEmail());
               data.put("full name", userProduct.getFullName());
+              data.put("vendor", userProduct.getVendor());
 
               if (!products.containsKey(userProduct.getEmail())){
                   products.put(userProduct.getEmail(), new ArrayList<>());

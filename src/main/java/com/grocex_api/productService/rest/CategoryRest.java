@@ -2,6 +2,7 @@ package com.grocex_api.productService.rest;
 
 import com.grocex_api.productService.models.Category;
 import com.grocex_api.productService.serviceImpl.CategoryServiceImpl;
+import com.grocex_api.productService.serviceImpl.ProductServiceImpl;
 import com.grocex_api.response.ResponseDTO;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
@@ -14,10 +15,12 @@ import java.util.UUID;
 public class CategoryRest {
 
     private final CategoryServiceImpl categoryService;
+    private final ProductServiceImpl productServiceImpl;
 
     @Autowired
-    public CategoryRest(CategoryServiceImpl categoryService) {
+    public CategoryRest(CategoryServiceImpl categoryService, ProductServiceImpl productServiceImpl) {
         this.categoryService = categoryService;
+        this.productServiceImpl = productServiceImpl;
     }
 
     @PostMapping

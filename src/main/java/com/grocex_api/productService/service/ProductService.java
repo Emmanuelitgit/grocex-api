@@ -15,4 +15,5 @@ public interface ProductService {
     ResponseEntity<ResponseDTO> updateProduct(Product product);
     ResponseEntity<ResponseDTO> removeProduct(UUID productId);
     ResponseEntity<ResponseDTO> findProductByCategory(String category);
+    ResponseEntity<ResponseDTO> findProductByVendor(String vendor);
 }

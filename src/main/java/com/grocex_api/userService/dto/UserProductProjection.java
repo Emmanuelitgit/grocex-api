@@ -6,6 +6,7 @@ public interface UserProductProjection {
     UUID getUserId();
     UUID getProductId();
     String getFullName();
+    String getVendor();
     String getProduct();
     Integer getUnitPrice();
     Integer getQuantity();
