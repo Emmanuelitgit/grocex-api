@@ -1,6 +1,10 @@
 package com.grocex_api.productService.serviceImpl;
 
+import com.grocex_api.config.AppProperties;
+import com.grocex_api.exception.NotFoundException;
+import com.grocex_api.imageUtility.ImageUtil;
 import com.grocex_api.productService.dto.ProductProjection;
+import com.grocex_api.productService.dto.ProductResponse;
 import com.grocex_api.productService.models.Product;
 import com.grocex_api.productService.repo.ProductRepo;
 import com.grocex_api.productService.service.ProductService;
@@ -12,6 +16,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
+import org.springframework.web.multipart.MultipartFile;
 
 import java.time.ZonedDateTime;
 import java.util.*;
@@ -21,10 +26,12 @@ import java.util.*;
 public class ProductServiceImpl implements ProductService {
 
     private final ProductRepo productRepo;
+    private final AppProperties appProperties;
 
     @Autowired
-    public ProductServiceImpl(ProductRepo productRepo) {
+    public ProductServiceImpl(ProductRepo productRepo, AppProperties appProperties) {
         this.productRepo = productRepo;
+        this.appProperties = appProperties;
     }
 
     /**
@@ -72,7 +79,22 @@ public class ProductServiceImpl implements ProductService {
                 ResponseDTO  response = AppUtils.getResponseDto("no product record found", HttpStatus.NOT_FOUND);
                 return new ResponseEntity<>(response, HttpStatus.NOT_FOUND);
             }
-            ResponseDTO  response = AppUtils.getResponseDto("products records fetched successfully", HttpStatus.OK, products);
+            // mapping response to include the image url
+           List<ProductResponse> res = new ArrayList<>();
+            for (ProductProjection projection: products){
+                ProductResponse productResponse = ProductResponse.builder()
+                        .id(projection.getId())
+                        .product(projection.getProduct())
+                        .quantity(projection.getQuantity())
+                        .unitPrice(projection.getUnitPrice())
+                        .vendor(projection.getVendor())
+                        .category(projection.getCategory())
+                        .imageUrl(appProperties.getBaseUrl()+"/image/"+projection.getId())
+                        .build();
+
+                res.add(productResponse);
+            }
+            ResponseDTO  response = AppUtils.getResponseDto("products records fetched successfully", HttpStatus.OK, res);
             return new ResponseEntity<>(response, HttpStatus.OK);
         } catch (Exception e) {
             log.error("Exception Occurred!, statusCode -> {} and Cause -> {} and Message -> {}", 500, e.getCause(), e.getMessage());
@@ -98,7 +120,17 @@ public class ProductServiceImpl implements ProductService {
                 ResponseDTO  response = AppUtils.getResponseDto("no product record found", HttpStatus.NOT_FOUND);
                 return new ResponseEntity<>(response, HttpStatus.NOT_FOUND);
             }
-            ResponseDTO  response = AppUtils.getResponseDto("product records fetched successfully", HttpStatus.OK, product);
+            // mapping response to include the image url
+            ProductResponse productResponse = ProductResponse.builder()
+                    .id(product.getId())
+                    .product(product.getProduct())
+                    .quantity(product.getQuantity())
+                    .unitPrice(product.getUnitPrice())
+                    .vendor(product.getVendor())
+                    .category(product.getCategory())
+                    .imageUrl(appProperties.getBaseUrl()+"/image/"+product.getId())
+                    .build();
+            ResponseDTO  response = AppUtils.getResponseDto("product records fetched successfully", HttpStatus.OK, productResponse);
             return new ResponseEntity<>(response, HttpStatus.OK);
         } catch (Exception e) {
             log.error("Exception Occurred!, statusCode -> {} and Cause -> {} and Message -> {}", 500, e.getCause(), e.getMessage());
@@ -118,13 +150,28 @@ public class ProductServiceImpl implements ProductService {
     public ResponseEntity<ResponseDTO> findProductByCategory(String category) {
         try{
             log.info("In get product by category method:->>>>>>");
-            List<ProductProjection> product = productRepo.getProductByCategory(category);
-            if (product.isEmpty()){
+            List<ProductProjection> products = productRepo.getProductByCategory(category);
+            if (products.isEmpty()){
                 log.error("no product record found:->>>>>>>{}", HttpStatus.NOT_FOUND);
                 ResponseDTO  response = AppUtils.getResponseDto("no product record found", HttpStatus.NOT_FOUND);
                 return new ResponseEntity<>(response, HttpStatus.NOT_FOUND);
             }
-            ResponseDTO  response = AppUtils.getResponseDto("product records fetched successfully", HttpStatus.OK, product);
+            // mapping response to include the image url
+            List<ProductResponse> res = new ArrayList<>();
+            for (ProductProjection projection: products){
+                ProductResponse productResponse = ProductResponse.builder()
+                        .id(projection.getId())
+                        .product(projection.getProduct())
+                        .quantity(projection.getQuantity())
+                        .unitPrice(projection.getUnitPrice())
+                        .vendor(projection.getVendor())
+                        .category(projection.getCategory())
+                        .imageUrl(appProperties.getBaseUrl()+"/image/"+projection.getId())
+                        .build();
+
+                res.add(productResponse);
+            }
+            ResponseDTO  response = AppUtils.getResponseDto("product records fetched successfully", HttpStatus.OK, res);
             return new ResponseEntity<>(response, HttpStatus.OK);
         } catch (Exception e) {
             log.error("Exception Occurred!, statusCode -> {} and Cause -> {} and Message -> {}", 500, e.getCause(), e.getMessage());
@@ -144,13 +191,29 @@ public class ProductServiceImpl implements ProductService {
     public ResponseEntity<ResponseDTO> findProductByVendor(String vendor) {
         try{
             log.info("In get product by vendor method:->>>>>>");
-            List<ProductProjection> product = productRepo.getProductByVendor(vendor);
-            if (product.isEmpty()){
+            List<ProductProjection> products = productRepo.getProductByVendor(vendor);
+            if (products.isEmpty()){
                 log.error("no product record found:->>>>>>>{}", HttpStatus.NOT_FOUND);
                 ResponseDTO  response = AppUtils.getResponseDto("no product record found", HttpStatus.NOT_FOUND);
                 return new ResponseEntity<>(response, HttpStatus.NOT_FOUND);
             }
-            ResponseDTO  response = AppUtils.getResponseDto("product records fetched successfully", HttpStatus.OK, product);
+
+            // mapping response to include the image url
+            List<ProductResponse> res = new ArrayList<>();
+            for (ProductProjection projection: products){
+                ProductResponse productResponse = ProductResponse.builder()
+                        .id(projection.getId())
+                        .product(projection.getProduct())
+                        .quantity(projection.getQuantity())
+                        .unitPrice(projection.getUnitPrice())
+                        .vendor(projection.getVendor())
+                        .category(projection.getCategory())
+                        .imageUrl(appProperties.getBaseUrl()+"/image/"+projection.getId())
+                        .build();
+
+                res.add(productResponse);
+            }
+            ResponseDTO  response = AppUtils.getResponseDto("product records fetched successfully", HttpStatus.OK, res);
             return new ResponseEntity<>(response, HttpStatus.OK);
         } catch (Exception e) {
             log.error("Exception Occurred!, statusCode -> {} and Cause -> {} and Message -> {}", 500, e.getCause(), e.getMessage());
@@ -221,5 +284,13 @@ public class ProductServiceImpl implements ProductService {
             ResponseDTO  response = AppUtils.getResponseDto("Internal server error", HttpStatus.INTERNAL_SERVER_ERROR);
             return new ResponseEntity<>(response, HttpStatus.INTERNAL_SERVER_ERROR);
         }
+    }
+
+    @Transactional
+    public byte[] getImage(UUID id) {
+        log.info("In get image method:->>>>");
+        Product dbImage = productRepo.findById(id)
+                .orElseThrow(()-> new NotFoundException("image record not found"));
+        return ImageUtil.decompressImage(dbImage.getImage());
     }
 }

@@ -58,12 +58,20 @@ public class OTPServiceImpl implements OTPService {
             User user = userRepo.findUserByEmail(otpPayload.getEmail())
                     .orElseThrow(()-> new NotFoundException("user record not found to send email"));
 
+            // check if user have a existing otp. delete it if exist before sending a new one.
+            OTP otpExist = otpRepo.findByUserId(user.getId());
+            if (otpExist != null){
+               otpRepo.deleteById(otpExist.getId());
+            }
+
+            // setting email items
             MimeMessage message = mailSender.createMimeMessage();
             MimeMessageHelper helper = new MimeMessageHelper(message, true);
             helper.setSubject("OTP Verification");
             helper.setFrom("eyidana001@gmail.com");
             helper.setTo(otpPayload.getEmail());
 
+            // setting variables values to passed to the template
             Context context = new Context();
             otpPayload.setOtpCode(generateOTP());
             context.setVariable("otp", otpPayload.getOtpCode());
@@ -76,14 +84,17 @@ public class OTPServiceImpl implements OTPService {
             if (otp == null){
                 throw new BadRequestException("fail to save otp record");
             }
+
             log.info("Otp sent:->>>>>>>>");
             mailSender.send(message);
+
         } catch (Exception e) {
             log.error("Exception Occurred!, statusCode -> {} and Cause -> {} and Message -> {}", 500, e.getCause(), e.getMessage());
             throw new ServerException("Internal server error!");
         }
     }
 
+    // a helper method for otp record to the db
     public OTP saveOTP(OTPPayload otpPayload){
         User user = userRepo.findUserByEmail(otpPayload.getEmail())
                 .orElseThrow(()-> new NotFoundException("user record not found to send email"));
@@ -107,22 +118,24 @@ public class OTPServiceImpl implements OTPService {
         User user = userRepo.findUserByEmail(otpPayload.getEmail())
                 .orElseThrow(()-> new NotFoundException("user record not found!"));
 
+        // check if otp exist
         OTP otpExist = otpRepo.findByUserId(user.getId());
         if (otpExist == null){
             ResponseDTO response = AppUtils.getResponseDto("OTP record not found", HttpStatus.NOT_FOUND);
             return new ResponseEntity<>(response, HttpStatus.NOT_FOUND);
         }
-
+        // check if the otp does not expire
         if (!ZonedDateTime.now().isBefore(otpExist.getExpireAt())){
             ResponseDTO response = AppUtils.getResponseDto("OTP has expired", HttpStatus.BAD_REQUEST);
             return new ResponseEntity<>(response, HttpStatus.BAD_REQUEST);
         }
-
+        // check if otp entered by user match the one in the db
         if (otpPayload.getOtpCode() != otpExist.getOtpCode()){
             ResponseDTO response = AppUtils.getResponseDto("OTP do not match", HttpStatus.BAD_REQUEST);
             return new ResponseEntity<>(response, HttpStatus.BAD_REQUEST);
         }
 
+        // remove otp after verification
         otpExist.setStatus(true);
         otpRepo.deleteById(otpExist.getId());
 
@@ -130,8 +143,19 @@ public class OTPServiceImpl implements OTPService {
         return new ResponseEntity<>(response, HttpStatus.OK);
     }
 
+    // a helper method to generate otp codes
     public Integer generateOTP(){
         RandomGenerator generator = new Random();
         return generator.nextInt(2001, 9000);
+    }
+
+    // a helper method to check user verification status during login
+    public boolean checkOTPStatusDuringLogin(String email){
+        User user = userRepo.findUserByEmail(email)
+                .orElseThrow(()->new NotFoundException("User record not found"));
+
+        OTP otpExist = otpRepo.findByUserId(user.getId());
+
+        return otpExist == null;
     }
 }

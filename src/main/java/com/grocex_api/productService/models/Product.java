@@ -1,9 +1,6 @@
 package com.grocex_api.productService.models;
 
-import jakarta.persistence.Entity;
-import jakarta.persistence.GeneratedValue;
-import jakarta.persistence.GenerationType;
-import jakarta.persistence.Id;
+import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
@@ -28,6 +25,9 @@ public class Product {
     private UUID fileId;
     private Integer rating;
     private UUID productOwnerId;
+    @Lob
+    @Column(columnDefinition = "LONGBLOB")
+    private byte[] image;
     private UUID createdBy;
     private ZonedDateTime createdAt;
 }
