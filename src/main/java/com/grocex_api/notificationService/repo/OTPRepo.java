@@ -8,4 +8,5 @@ import java.util.UUID;
 
 @Repository
 public interface OTPRepo extends JpaRepository<OTP, UUID> {
+    OTP findByUserId(UUID userId);
 }
