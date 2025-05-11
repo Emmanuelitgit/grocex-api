@@ -45,6 +45,7 @@ public class ProductRest {
             @RequestParam("price") Integer price,
             @RequestParam("quantity") Integer quantity,
             @RequestParam("ownerId") UUID ownerId,
+            @RequestParam("categoryId") UUID category,
             @RequestParam("file")  MultipartFile file) throws IOException {
 
         Product data = Product.builder()
@@ -53,6 +54,7 @@ public class ProductRest {
                 .unitPrice(price)
                 .quantity(quantity)
                 .productOwnerId(ownerId)
+                .categoryId(category)
 //                .categoryId()
                 .build();
         return productService.saveProduct(data);
