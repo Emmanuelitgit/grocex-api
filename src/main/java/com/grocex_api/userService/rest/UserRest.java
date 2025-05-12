@@ -37,9 +37,9 @@ public class UserRest {
         return userService.getUserById(userId);
     }
 
-    @PutMapping("/{userId}")
-    public ResponseEntity<ResponseDTO> updateUser(@PathVariable UUID userId, @RequestBody UserPayloadDTO user){
-        return userService.updateUser(user, userId);
+    @PutMapping
+    public ResponseEntity<ResponseDTO> updateUser(@RequestBody UserPayloadDTO user){
+        return userService.updateUser(user);
     }
 
     @GetMapping("/products")

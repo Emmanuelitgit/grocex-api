@@ -55,7 +55,7 @@ public class ProductRest {
                 .quantity(quantity)
                 .productOwnerId(ownerId)
                 .categoryId(category)
-//                .categoryId()
+                .categoryId(category)
                 .build();
         return productService.saveProduct(data);
     }
@@ -70,9 +70,27 @@ public class ProductRest {
         return productService.findProductByCategory(category);
     }
 
-    @PutMapping
-    public ResponseEntity<ResponseDTO> updateProduct(@RequestBody Product product){
-        return productService.updateProduct(product);
+    @PutMapping(consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
+    public ResponseEntity<ResponseDTO> updateProduct(
+            @RequestParam("id") UUID id,
+            @RequestParam("name") String name,
+            @RequestParam("price") Integer price,
+            @RequestParam("quantity") Integer quantity,
+            @RequestParam("ownerId") UUID ownerId,
+            @RequestParam("categoryId") UUID category,
+            @RequestParam("file")  MultipartFile file
+    ) throws IOException {
+        Product data = Product.builder()
+                .id(id)
+                .image(file != null ? file.getBytes() : null)
+                .name(name)
+                .unitPrice(price)
+                .quantity(quantity)
+                .productOwnerId(ownerId)
+                .categoryId(category)
+                .categoryId(category)
+                .build();
+        return productService.updateProduct(data);
     }
 
     @DeleteMapping

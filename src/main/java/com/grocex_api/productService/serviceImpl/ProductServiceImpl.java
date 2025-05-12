@@ -233,21 +233,17 @@ public class ProductServiceImpl implements ProductService {
     public ResponseEntity<ResponseDTO> updateProduct(Product product) {
        try {
            log.info("In update product method:->>>>>>");
-           Optional<Product> productOptional = productRepo.findById(product.getId());
-           if (productOptional.isEmpty()){
-               log.error("no product record found:->>>>>>>{}", HttpStatus.NOT_FOUND);
-               ResponseDTO  response = AppUtils.getResponseDto("no product record found", HttpStatus.NOT_FOUND);
-               return new ResponseEntity<>(response, HttpStatus.NOT_FOUND);
-           }
+           Product existingData = productRepo.findById(product.getId())
+                   .orElseThrow(()-> new NotFoundException("product record not found"));
 
-           Product existingData = productOptional.get();
-           existingData.setName(product.getName());
-           existingData.setFileId(product.getFileId());
-           existingData.setCategoryId(product.getCategoryId());
-           existingData.setRating(product.getRating());
-           existingData.setProductOwnerId(product.getProductOwnerId());
-           existingData.setUnitPrice(product.getUnitPrice());
-           existingData.setQuantity(product.getQuantity());
+           existingData.setName(product.getName() !=null? product.getName() : existingData.getName());
+           existingData.setFileId(product.getFileId() !=null? product.getFileId() : existingData.getFileId());
+           existingData.setCategoryId(product.getCategoryId() !=null? product.getCategoryId() : existingData.getCategoryId());
+           existingData.setRating(product.getRating() !=null? product.getRating() : existingData.getRating());
+           existingData.setProductOwnerId(product.getProductOwnerId() !=null? product.getProductOwnerId() : existingData.getProductOwnerId());
+           existingData.setUnitPrice(product.getUnitPrice()>0 ? product.getUnitPrice() : existingData.getUnitPrice());
+           existingData.setQuantity(product.getQuantity()>0? product.getQuantity() : existingData.getQuantity());
+           existingData.setImage(product.getImage() !=null?ImageUtil.compressImage(product.getImage()) : existingData.getImage());
            Product productRes = productRepo.save(existingData);
 
            ResponseDTO  response = AppUtils.getResponseDto("product records updated successfully", HttpStatus.OK, productRes);

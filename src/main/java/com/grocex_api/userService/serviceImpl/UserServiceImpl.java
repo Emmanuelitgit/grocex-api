@@ -1,5 +1,6 @@
 package com.grocex_api.userService.serviceImpl;
 
+import com.grocex_api.exception.NotFoundException;
 import com.grocex_api.response.ResponseDTO;
 import com.grocex_api.userService.dto.*;
 import com.grocex_api.userService.models.RoleSetup;
@@ -134,36 +135,34 @@ public class UserServiceImpl implements UserService {
     /**
      * @description This method is used to update user records.
      * @param userPayload
-     * @param userId
      * @return
      * @auther Emmanuel Yidana
      * @createdAt 27h April 2025
      */
     @Override
-    public ResponseEntity<ResponseDTO> updateUser(UserPayloadDTO userPayload, UUID userId) {
+    public ResponseEntity<ResponseDTO> updateUser(UserPayloadDTO userPayload) {
         try{
-            log.info("In update user method:->>>>>>");
-            Optional<User> userOptional = userRepo.findById(userId);
-            if (userOptional.isEmpty()){
-                ResponseDTO  response = AppUtils.getResponseDto("no user record found", HttpStatus.NOT_FOUND);
-                return new ResponseEntity<>(response, HttpStatus.NOT_FOUND);
-            }
-            User existingData = userOptional.get();
-            existingData.setEmail(userPayload.getEmail());
-            existingData.setFirstName(userPayload.getFirstName());
-            existingData.setLastName(userPayload.getLastName());
-            existingData.setUsername(userPayload.getUsername());
-            existingData.setPhone(userPayload.getPhone());
+            log.info("In update user method:->>>>>>{}", userPayload);
+            User existingData = userRepo.findById(userPayload.getId())
+                    .orElseThrow(()-> new NotFoundException("user record not found"));
+
+            existingData.setEmail(userPayload.getEmail() !=null ? userPayload.getEmail() : existingData.getEmail());
+            existingData.setFirstName(userPayload.getFirstName() !=null ? userPayload.getFirstName() : existingData.getFirstName());
+            existingData.setLastName(userPayload.getLastName() !=null ? userPayload.getLastName() : existingData.getLastName());
+            existingData.setUsername(userPayload.getUsername() !=null ? userPayload.getUsername() : existingData.getUsername());
+            existingData.setPhone(userPayload.getPhone() >0 ? userPayload.getPhone() : existingData.getPhone());
+            existingData.setVendor(userPayload.getVendor() !=null ? userPayload.getVendor() : existingData.getVendor());
             User userResponse = userRepo.save(existingData);
             log.info("user updated successfully:->>>>>>");
 
             // getting the role name from the role setup db
-            Optional<RoleSetup> roleSetupOptional = roleSetupRepo.findById(userPayload.getRole());
-            if (roleSetupOptional.isEmpty()){
-                ResponseDTO  response = AppUtils.getResponseDto("role record not found", HttpStatus.NOT_FOUND);
-                return new ResponseEntity<>(response, HttpStatus.NOT_FOUND);
+           RoleSetup role =  new RoleSetup();
+            if (userPayload.getRole() != null){
+                RoleSetup roleData  = roleSetupRepo.findById(userPayload.getRole())
+                        .orElseThrow(()-> new NotFoundException("role record not found"));
+                role.setName(roleData.getName());
             }
-            RoleSetup role = roleSetupOptional.get();
+
             UserDTO userDTOResponse = DTOMapper.toUserDTO(userResponse, role.getName());
 
             ResponseDTO  response = AppUtils.getResponseDto("user records updated successfully", HttpStatus.OK, userDTOResponse);
