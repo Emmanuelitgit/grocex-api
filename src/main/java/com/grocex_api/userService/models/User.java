@@ -22,7 +22,6 @@ public class User {
     private int phone;
     private String username;
     private String password;
-    private String vendor;
     private UUID createdBy;
     private ZonedDateTime createdAt;
 

@@ -191,7 +191,7 @@ public class ProductServiceImpl implements ProductService {
     public ResponseEntity<ResponseDTO> findProductByVendor(String vendor) {
         try{
             log.info("In get product by vendor method:->>>>>>");
-            List<ProductProjection> products = productRepo.getProductByVendor(vendor);
+            List<ProductProjection> products = productRepo.getProductsByVendor(vendor);
             if (products.isEmpty()){
                 log.error("no product record found:->>>>>>>{}", HttpStatus.NOT_FOUND);
                 ResponseDTO  response = AppUtils.getResponseDto("no product record found", HttpStatus.NOT_FOUND);

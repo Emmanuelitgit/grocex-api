@@ -46,4 +46,5 @@ public class UserRest {
     public ResponseEntity<ResponseDTO> getUsersAndProducts(){
         return userService.getUsersAndProducts();
     }
+
 }

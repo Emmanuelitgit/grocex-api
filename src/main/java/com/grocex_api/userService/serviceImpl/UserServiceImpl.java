@@ -1,6 +1,8 @@
 package com.grocex_api.userService.serviceImpl;
 
 import com.grocex_api.exception.NotFoundException;
+import com.grocex_api.productService.models.Vendor;
+import com.grocex_api.productService.serviceImpl.VendorServiceImpl;
 import com.grocex_api.response.ResponseDTO;
 import com.grocex_api.userService.dto.*;
 import com.grocex_api.userService.models.RoleSetup;
@@ -31,15 +33,17 @@ public class UserServiceImpl implements UserService {
     private final UserRoleServiceImpl userRoleServiceImpl;
     private final RoleSetupRepo roleSetupRepo;
     private final RoleSetupServiceImpl roleSetupServiceImpl;
+    private final VendorServiceImpl vendorService;
 
     @Autowired
-    public UserServiceImpl(UserRepo userRepo, DTOMapper dtoMapper, PasswordEncoder passwordEncoder, UserRoleServiceImpl userRoleServiceImpl, RoleSetupRepo roleSetupRepo, RoleSetupServiceImpl roleSetupServiceImpl) {
+    public UserServiceImpl(UserRepo userRepo, DTOMapper dtoMapper, PasswordEncoder passwordEncoder, UserRoleServiceImpl userRoleServiceImpl, RoleSetupRepo roleSetupRepo, RoleSetupServiceImpl roleSetupServiceImpl, VendorServiceImpl vendorService) {
         this.userRepo = userRepo;
         this.dtoMapper = dtoMapper;
         this.passwordEncoder = passwordEncoder;
         this.userRoleServiceImpl = userRoleServiceImpl;
         this.roleSetupRepo = roleSetupRepo;
         this.roleSetupServiceImpl = roleSetupServiceImpl;
+        this.vendorService = vendorService;
     }
 
     /**
@@ -72,6 +76,15 @@ public class UserServiceImpl implements UserService {
            }
            RoleSetup role = roleSetupOptional.get();
            userRoleServiceImpl.saveUserRole(userResponse.getId(), userPayloadDTO.getRole());
+
+           Vendor vendor = Vendor.builder()
+                   .name(userPayloadDTO.getVendor())
+                   .userId(userResponse.getId())
+                   .status(userPayloadDTO.getVendorStatus())
+                   .createdBy(userResponse.getId())
+                   .createdAt(ZonedDateTime.now())
+                   .build();
+           vendorService.saveVendor(vendor);
            log.info("User created successfully:->>>>>>");
            UserDTO userDTO = DTOMapper.toUserDTO(userResponse, role.getName());
            ResponseDTO  response = AppUtils.getResponseDto("user record added successfully", HttpStatus.CREATED, userDTO);
@@ -151,9 +164,7 @@ public class UserServiceImpl implements UserService {
             existingData.setLastName(userPayload.getLastName() !=null ? userPayload.getLastName() : existingData.getLastName());
             existingData.setUsername(userPayload.getUsername() !=null ? userPayload.getUsername() : existingData.getUsername());
             existingData.setPhone(userPayload.getPhone() >0 ? userPayload.getPhone() : existingData.getPhone());
-            existingData.setVendor(userPayload.getVendor() !=null ? userPayload.getVendor() : existingData.getVendor());
             User userResponse = userRepo.save(existingData);
-            log.info("user updated successfully:->>>>>>");
 
             // getting the role name from the role setup db
            RoleSetup role =  new RoleSetup();
@@ -163,8 +174,15 @@ public class UserServiceImpl implements UserService {
                 role.setName(roleData.getName());
             }
 
-            UserDTO userDTOResponse = DTOMapper.toUserDTO(userResponse, role.getName());
+            // updating vendor details
+            Vendor vendor = Vendor.builder()
+                    .name(userPayload.getVendor())
+                    .status(userPayload.getVendorStatus())
+                    .build();
+            vendorService.updateVendor(vendor);
 
+            log.info("user updated successfully:->>>>>>");
+            UserDTO userDTOResponse = DTOMapper.toUserDTO(userResponse, role.getName());
             ResponseDTO  response = AppUtils.getResponseDto("user records updated successfully", HttpStatus.OK, userDTOResponse);
             return new ResponseEntity<>(response, HttpStatus.OK);
         } catch (Exception e) {
@@ -202,7 +220,7 @@ public class UserServiceImpl implements UserService {
     }
 
     /**
-     * @description This method is used to fetch users with their products.ie products belong to them.
+     * @description This method is used to fetch users with their products.ie products that belong to them.
      * @return
      * @auther Emmanuel Yidana
      * @createdAt 1st may 2025

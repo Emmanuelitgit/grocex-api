@@ -72,20 +72,20 @@ public class ProductRest {
 
     @PutMapping(consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
     public ResponseEntity<ResponseDTO> updateProduct(
-            @RequestParam("id") UUID id,
-            @RequestParam("name") String name,
-            @RequestParam("price") Integer price,
-            @RequestParam("quantity") Integer quantity,
-            @RequestParam("ownerId") UUID ownerId,
-            @RequestParam("categoryId") UUID category,
-            @RequestParam("file")  MultipartFile file
+            @RequestParam(value = "id", required = false) UUID id,
+            @RequestParam(value = "name", required = false) String name,
+            @RequestParam(value = "price", required = false) Integer price,
+            @RequestParam(value = "quantity", required = false) Integer quantity,
+            @RequestParam(value = "ownerId", required = false) UUID ownerId,
+            @RequestParam(value = "categoryId", required = false) UUID category,
+            @RequestParam(value = "file", required = false)  MultipartFile file
     ) throws IOException {
         Product data = Product.builder()
                 .id(id)
                 .image(file != null ? file.getBytes() : null)
                 .name(name)
-                .unitPrice(price)
-                .quantity(quantity)
+                .unitPrice(price !=null? price : 0)
+                .quantity(quantity !=null? quantity : 0)
                 .productOwnerId(ownerId)
                 .categoryId(category)
                 .categoryId(category)

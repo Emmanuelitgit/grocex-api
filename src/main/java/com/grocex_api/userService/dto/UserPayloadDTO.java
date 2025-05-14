@@ -1,5 +1,6 @@
 package com.grocex_api.userService.dto;
 
+import com.grocex_api.productService.dto.VendorStatus;
 import lombok.Data;
 import org.springframework.stereotype.Component;
 import java.time.ZonedDateTime;
@@ -16,6 +17,7 @@ public class UserPayloadDTO {
     private String password;
     private String username;
     private UUID role;
+    private VendorStatus vendorStatus;
     private String vendor;
     private UUID createdBy;
     private ZonedDateTime createdAt;
