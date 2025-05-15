@@ -20,13 +20,12 @@ import org.thymeleaf.context.Context;
 @Service
 public class OrderNotificationServiceImpl {
 
-    private final JavaMailSender mailSender;
+    private JavaMailSender mailSender;
     private final TemplateEngine templateEngine;
     private final UserRepo userRepo;
 
     @Autowired
-    public OrderNotificationServiceImpl(JavaMailSender mailSender, TemplateEngine templateEngine, UserRepo userRepo) {
-        this.mailSender = mailSender;
+    public OrderNotificationServiceImpl(TemplateEngine templateEngine, UserRepo userRepo) {
         this.templateEngine = templateEngine;
         this.userRepo = userRepo;
     }
