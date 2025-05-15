@@ -57,9 +57,4 @@ public class SecurityConfig {
     RestTemplate restTemplate(){
         return new RestTemplate();
     }
-
-    @Bean
-    JavaMailSender javaMailSender(){
-        return new JavaMailSenderImpl();
-    }
 }

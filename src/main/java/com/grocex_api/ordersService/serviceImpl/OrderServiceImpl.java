@@ -1,5 +1,8 @@
 package com.grocex_api.ordersService.serviceImpl;
 
+import com.grocex_api.exception.NotFoundException;
+import com.grocex_api.notificationService.dto.OrderNotificationPayload;
+import com.grocex_api.notificationService.serviceImpl.OrderNotificationServiceImpl;
 import com.grocex_api.ordersService.dto.OrderPayload;
 import com.grocex_api.ordersService.dto.OrderProjection;
 import com.grocex_api.ordersService.models.Order;
@@ -13,6 +16,7 @@ import com.grocex_api.productService.models.Product;
 import com.grocex_api.productService.repo.ProductRepo;
 import com.grocex_api.response.ResponseDTO;
 import com.grocex_api.userService.models.User;
+import com.grocex_api.userService.repo.UserRepo;
 import com.grocex_api.utils.AppUtils;
 import jakarta.transaction.Transactional;
 import lombok.extern.slf4j.Slf4j;
@@ -30,12 +34,16 @@ public class OrderServiceImpl implements OrderService {
     private final OrderRepo orderRepo;
     private final ProductRepo productRepo;
     private final ProductOrderRepo productOrderRepo;
+    private final OrderNotificationServiceImpl orderNotificationService;
+    private final UserRepo userRepo;
 
     @Autowired
-    public OrderServiceImpl(OrderRepo orderRepo, ProductRepo productRepo, ProductOrderRepo productOrderRepo) {
+    public OrderServiceImpl(OrderRepo orderRepo, ProductRepo productRepo, ProductOrderRepo productOrderRepo, OrderNotificationServiceImpl orderNotificationService, UserRepo userRepo) {
         this.orderRepo = orderRepo;
         this.productRepo = productRepo;
         this.productOrderRepo = productOrderRepo;
+        this.orderNotificationService = orderNotificationService;
+        this.userRepo = userRepo;
     }
 
     /**
@@ -75,10 +83,13 @@ public class OrderServiceImpl implements OrderService {
            generalOrder.setCustomerId(customerId);
            Order oderRes = orderRepo.save(generalOrder);
 
-
-           // an looping and setting specific product order
+           // to hold data for individual product order details
            List<ProductOrder>res = new ArrayList<>();
-           for (OrderPayload order: orders){
+           // to hold payload that will be sent to the notification service
+            List<Object> notificationOrderProducts = new ArrayList<>();
+
+            // looping and setting specific product order
+            for (OrderPayload order: orders){
                Optional<Product> productOptional = productRepo.findById(order.getProductId());
                if (productOptional.isEmpty()){
                    log.error("no product record found:->>>>>>>{}", HttpStatus.NOT_FOUND);
@@ -116,8 +127,26 @@ public class OrderServiceImpl implements OrderService {
                productOrder.setOrderId(oderRes.getId());
                ProductOrder productOrderRes = productOrderRepo.save(productOrder);
                res.add(productOrderRes);
-               productRepo.save(product);
+               Product productRes = productRepo.save(product);
+
+                Map<String, Object> notificationMap = new HashMap<>();
+                notificationMap.put("product", productRes.getName());
+                notificationMap.put("price", productOrderRes.getUnitPrice());
+                notificationMap.put("quantity", productOrderRes.getQuantity());
+                notificationOrderProducts.add(notificationMap);
            }
+
+           // send notification on success to customer
+            User user = userRepo.findById(oderRes.getCustomerId())
+                    .orElseThrow(()-> new NotFoundException("user record not found!"));
+            OrderNotificationPayload orderNotificationPayload = OrderNotificationPayload
+                    .builder()
+                    .email(user.getEmail())
+                    .fullName(AppUtils.getFullName(user.getFirstName(), user.getLastName()))
+                    .products(notificationOrderProducts)
+                    .orderTotals(oderRes.getTotalPrice())
+                    .build();
+            orderNotificationService.SendToCustomer(orderNotificationPayload);
 
             ResponseDTO  response = AppUtils.getResponseDto("product ordered successfully", HttpStatus.CREATED, res);
             return new ResponseEntity<>(response, HttpStatus.OK);
@@ -234,8 +263,8 @@ public class OrderServiceImpl implements OrderService {
     public ResponseEntity<ResponseDTO> findOrderByUserId(UUID userId) {
         try{
             log.info("In get order method:->>>>>>");
-            OrderProjection order = orderRepo.getOrderDetailsByUserId(userId);
-            if (order == null){
+            List<OrderProjection> orders = orderRepo.getOrderDetailsByUserId(userId);
+            if (orders.isEmpty()){
                 log.error("no order record found:->>>>>>>{}", HttpStatus.NOT_FOUND);
                 ResponseDTO  response = AppUtils.getResponseDto("no order record found", HttpStatus.NOT_FOUND);
                 return new ResponseEntity<>(response, HttpStatus.NOT_FOUND);
@@ -243,27 +272,30 @@ public class OrderServiceImpl implements OrderService {
 
             Map<Object, List<Object>> ordersObj = new HashMap<>();
             List<Object> res = new ArrayList<>();
-            Map<String, Object> data = new HashMap<>();
-            data.put("userId", order.getUserId());
-            data.put("full name", order.getCustomer());
-            data.put("username", order.getUsername());
-            data.put("email", order.getEmail());
 
-            if (!ordersObj.containsKey(order.getCustomer())){
-                ordersObj.put(order.getCustomer(), new ArrayList<>());
+            for (OrderProjection order : orders){
+                Map<String, Object> data = new HashMap<>();
+                data.put("userId", order.getUserId());
+                data.put("full name", order.getCustomer());
+                data.put("username", order.getUsername());
+                data.put("email", order.getEmail());
+
+                if (!ordersObj.containsKey(order.getCustomer())){
+                    ordersObj.put(order.getCustomer(), new ArrayList<>());
+                }
+
+                Map<String, Object> orderItems  = new HashMap<>();
+                orderItems.put("orderId", order.getOrderId());
+                orderItems.put("product", order.getProduct());
+                orderItems.put("unitPrice", order.getUnitPrice());
+                orderItems.put("quantity", order.getQuantity());
+                orderItems.put("totalPrice", order.getTotalPrice());
+
+                ordersObj.get(order.getCustomer()).add(orderItems);
+
+                data.put("orders", ordersObj.get(order.getCustomer()));
+                res.add(data);
             }
-
-            Map<String, Object> orderItems  = new HashMap<>();
-            orderItems.put("orderId", order.getOrderId());
-            orderItems.put("product", order.getProduct());
-            orderItems.put("unitPrice", order.getUnitPrice());
-            orderItems.put("quantity", order.getQuantity());
-            orderItems.put("totalPrice", order.getTotalPrice());
-
-            ordersObj.get(order.getCustomer()).add(orderItems);
-
-            data.put("orders", ordersObj.get(order.getCustomer()));
-            res.add(data);
             // removing duplicates
             Set<Object> setResponse = new HashSet<>(res);
             ResponseDTO  response = AppUtils.getResponseDto("order records fetched successfully", HttpStatus.OK, setResponse);

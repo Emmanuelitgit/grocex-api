@@ -1,6 +1,7 @@
 package com.grocex_api.productService.rest;
 
 import com.grocex_api.imageUtility.ImageUtil;
+import com.grocex_api.productService.dto.PaginationPayload;
 import com.grocex_api.productService.dto.ProductRequest;
 import com.grocex_api.productService.models.Product;
 import com.grocex_api.productService.repo.ProductRepo;
@@ -18,6 +19,7 @@ import org.springframework.web.multipart.MultipartFile;
 
 import java.io.IOException;
 import java.util.List;
+import java.util.Map;
 import java.util.UUID;
 
 @Slf4j
@@ -35,8 +37,19 @@ public class ProductRest {
     }
 
     @GetMapping
-    public ResponseEntity<ResponseDTO> findAll(){
-        return productService.findAll();
+    public ResponseEntity<ResponseDTO> findAll(
+            @RequestParam(name = "page", defaultValue = "1", required = false) int page,
+            @RequestParam(name = "size", defaultValue = "10", required = false) int size,
+            @RequestParam(name = "paginate", defaultValue = "false", required = false) boolean paginate
+    ){
+
+        PaginationPayload paginationPayload = PaginationPayload
+                .builder()
+                .page(page)
+                .paginate(paginate)
+                .size(size)
+                .build();
+        return productService.findAll(paginationPayload);
     }
 
     @PostMapping(consumes = MediaType.MULTIPART_FORM_DATA_VALUE)

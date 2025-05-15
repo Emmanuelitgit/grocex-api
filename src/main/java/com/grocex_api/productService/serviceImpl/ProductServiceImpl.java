@@ -3,6 +3,7 @@ package com.grocex_api.productService.serviceImpl;
 import com.grocex_api.config.AppProperties;
 import com.grocex_api.exception.NotFoundException;
 import com.grocex_api.imageUtility.ImageUtil;
+import com.grocex_api.productService.dto.PaginationPayload;
 import com.grocex_api.productService.dto.ProductProjection;
 import com.grocex_api.productService.dto.ProductResponse;
 import com.grocex_api.productService.models.Product;
@@ -13,6 +14,8 @@ import com.grocex_api.utils.AppUtils;
 import jakarta.transaction.Transactional;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
@@ -70,18 +73,27 @@ public class ProductServiceImpl implements ProductService {
      * @createdAt 30h April 2025
      */
     @Override
-    public ResponseEntity<ResponseDTO> findAll() {
+    public ResponseEntity<ResponseDTO> findAll(PaginationPayload paginationPayload) {
         try{
             log.info("In get all products method:->>>>>>");
+            boolean isPaginate = paginationPayload.isPaginate();
+
+            Page<ProductProjection> productsPage = null;
+            if (isPaginate){
+                Pageable pageable = AppUtils.getPageRequest(paginationPayload);
+                productsPage = productRepo.getProductAndCategory(pageable);
+            }
+
             List<ProductProjection> products = productRepo.getProductAndCategory();
             if (products.isEmpty()){
                 log.error("no product record found:->>>>>>>{}", HttpStatus.NOT_FOUND);
                 ResponseDTO  response = AppUtils.getResponseDto("no product record found", HttpStatus.NOT_FOUND);
                 return new ResponseEntity<>(response, HttpStatus.NOT_FOUND);
             }
+
             // mapping response to include the image url
            List<ProductResponse> res = new ArrayList<>();
-            for (ProductProjection projection: products){
+            for (ProductProjection projection: isPaginate?productsPage:products){
                 ProductResponse productResponse = ProductResponse.builder()
                         .id(projection.getId())
                         .product(projection.getProduct())

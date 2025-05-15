@@ -1,10 +1,7 @@
 package com.grocex_api.paymentService.models;
 
 import com.grocex_api.paymentService.dto.PaymentStatus;
-import jakarta.persistence.Entity;
-import jakarta.persistence.GeneratedValue;
-import jakarta.persistence.GenerationType;
-import jakarta.persistence.Id;
+import jakarta.persistence.*;
 import lombok.Data;
 
 import java.time.ZonedDateTime;
@@ -12,6 +9,7 @@ import java.util.UUID;
 
 @Entity
 @Data
+@Table(name = "payment_tb")
 public class Payment {
 
     @Id

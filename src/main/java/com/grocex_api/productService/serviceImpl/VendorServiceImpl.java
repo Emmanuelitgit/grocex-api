@@ -50,7 +50,7 @@ public class VendorServiceImpl implements VendorService {
     }
 
     /**
-     * @description This method is used to save vendor on user creation or update. it is called in the user service.
+     * @description This method is used to save vendor on user creation. it is called in the user service.
      * @return
      * @auther Emmanuel Yidana
      * @createdAt 15th  May 2025
@@ -75,6 +75,13 @@ public class VendorServiceImpl implements VendorService {
         }
     }
 
+    /**
+     * @description This method is used to save vendor on user update. it is called in the user service.
+     * @param vendor
+     * @return
+     * @auther Emmanuel Yidana
+     * @createdAt 15th  May 2025
+     */
     @Override
     public void updateVendor(Vendor vendor) {
         // checking if vendor exist by id. if not throw exception
@@ -87,8 +94,5 @@ public class VendorServiceImpl implements VendorService {
         
         // saving vendor
         vendorRepo.save(vendor);
-
     }
-
-
 }

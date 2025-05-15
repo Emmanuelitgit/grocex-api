@@ -1,9 +1,6 @@
 package com.grocex_api.notificationService.models;
 
-import jakarta.persistence.Entity;
-import jakarta.persistence.GeneratedValue;
-import jakarta.persistence.GenerationType;
-import jakarta.persistence.Id;
+import jakarta.persistence.*;
 import lombok.Data;
 
 import java.time.ZonedDateTime;
@@ -11,6 +8,7 @@ import java.util.UUID;
 
 @Entity
 @Data
+@Table(name = "otp_tb")
 public class OTP {
     @Id
     @GeneratedValue(strategy = GenerationType.UUID)

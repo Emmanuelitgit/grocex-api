@@ -28,5 +28,5 @@ public interface OrderRepo extends JpaRepository<Order, UUID> {
             "JOIN product p ON po.product_id=p.id " +
             "JOIN order_tb o ON o.id=po.order_id " +
             "JOIN user_tb u ON u.id=o.customer_id WHERE u.id=? ", nativeQuery = true)
-    OrderProjection getOrderDetailsByUserId(UUID userId);
+    List<OrderProjection> getOrderDetailsByUserId(UUID userId);
 }
