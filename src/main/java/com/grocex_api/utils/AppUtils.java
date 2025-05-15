@@ -119,7 +119,6 @@ public class AppUtils {
      * @createdAt 16h April 2025
      */
     public static Pageable getPageRequest(PaginationPayload paginationPayload){
-
         return PageRequest.of(paginationPayload.getPage(), paginationPayload.getSize());
     }
 }

@@ -1,10 +1,8 @@
 package com.grocex_api.notificationService.serviceImpl;
 
-import com.grocex_api.exception.BadRequestException;
 import com.grocex_api.exception.NotFoundException;
 import com.grocex_api.exception.ServerException;
 import com.grocex_api.notificationService.dto.OrderNotificationPayload;
-import com.grocex_api.notificationService.models.OTP;
 import com.grocex_api.userService.models.User;
 import com.grocex_api.userService.repo.UserRepo;
 import jakarta.mail.internet.MimeMessage;
@@ -16,16 +14,18 @@ import org.springframework.stereotype.Service;
 import org.thymeleaf.TemplateEngine;
 import org.thymeleaf.context.Context;
 
-@Slf4j
 @Service
+@Slf4j
+
 public class OrderNotificationServiceImpl {
 
-    private JavaMailSender mailSender;
     private final TemplateEngine templateEngine;
     private final UserRepo userRepo;
+    private final JavaMailSender mailSender;
 
     @Autowired
-    public OrderNotificationServiceImpl(TemplateEngine templateEngine, UserRepo userRepo) {
+    public OrderNotificationServiceImpl(JavaMailSender mailSender, TemplateEngine templateEngine, UserRepo userRepo) {
+        this.mailSender = mailSender;
         this.templateEngine = templateEngine;
         this.userRepo = userRepo;
     }
