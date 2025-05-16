@@ -8,6 +8,7 @@ import com.grocex_api.userService.repo.RoleSetupRepo;
 import com.grocex_api.userService.repo.UserRepo;
 import com.grocex_api.userService.repo.UserRoleRepo;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.ExampleMatcher;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
@@ -23,6 +24,9 @@ import java.time.ZonedDateTime;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Map;
+
+import static org.springframework.data.domain.ExampleMatcher.GenericPropertyMatchers.contains;
+import static org.springframework.data.domain.ExampleMatcher.GenericPropertyMatchers.exact;
 
 @Component
 public class AppUtils {
@@ -121,4 +125,28 @@ public class AppUtils {
     public static Pageable getPageRequest(PaginationPayload paginationPayload){
         return PageRequest.of(paginationPayload.getPage(), paginationPayload.getSize());
     }
+
+    public static final ExampleMatcher SEARCH_CONDITION_MATCH_ALL = ExampleMatcher.matchingAll()
+            .withMatcher("typeId", exact())
+            .withMatcher("location.regionId", exact())
+            .withMatcher("location.districtId", exact())
+            .withMatcher("landlordId", exact())
+            .withMatcher("propertyGenerals.general.id", exact())
+            .withMatcher("propertyGenerals.generalSub.id", exact())
+            .withIgnorePaths("id", "coordinates", "createdBy", "updatedBy", "createdAt", "updatedAt")
+            .withMatcher("name", contains().ignoreCase())
+            .withMatcher("description", contains().ignoreCase())
+            .withMatcher("featureImg", contains().ignoreCase());
+
+    private static final ExampleMatcher SEARCH_CONDITION_MATCH_ANY = ExampleMatcher.matchingAny()
+            .withMatcher("typeId", exact())
+            .withMatcher("location.regionId", exact())
+            .withMatcher("location.districtId", exact())
+            .withMatcher("landlordId", exact())
+            .withMatcher("propertyGenerals.general.id", exact())
+            .withMatcher("propertyGenerals.generalSub.id", exact())
+            .withIgnorePaths("id", "coordinates", "createdBy", "updatedBy", "createdAt", "updatedAt")
+            .withMatcher("name", contains().ignoreCase())
+            .withMatcher("description", contains().ignoreCase())
+            .withMatcher("featureImg", contains().ignoreCase());
 }
