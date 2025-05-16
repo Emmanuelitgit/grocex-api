@@ -10,6 +10,6 @@ public interface CategoryService {
     ResponseEntity<ResponseDTO> saveCategory(Category category);
     ResponseEntity<ResponseDTO> findAll();
     ResponseEntity<ResponseDTO> findCategoryById(UUID categoryId);
-    ResponseEntity<ResponseDTO> updateCategory(Category category);
-    ResponseEntity<ResponseDTO> removeCategory(Category category);
+    ResponseEntity<ResponseDTO> updateCategory(Category category, UUID categoryId);
+    ResponseEntity<ResponseDTO> removeCategory(UUID categoryId);
 }

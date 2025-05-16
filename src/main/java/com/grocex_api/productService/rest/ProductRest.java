@@ -94,9 +94,9 @@ public class ProductRest {
         return productService.updateProduct(data);
     }
 
-    @DeleteMapping
-    public ResponseEntity<ResponseDTO> removeProduct(@RequestBody Product product){
-        return productService.removeProduct(product.getId());
+    @DeleteMapping("/{productId}")
+    public ResponseEntity<ResponseDTO> removeProduct(@PathVariable UUID productId){
+        return productService.removeProduct(productId);
     }
 
     @GetMapping("/vendor/{vendor}")

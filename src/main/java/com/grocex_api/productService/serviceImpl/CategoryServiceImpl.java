@@ -84,9 +84,9 @@ public class CategoryServiceImpl implements CategoryService {
     }
 
     @Override
-    public ResponseEntity<ResponseDTO> updateCategory(Category category) {
+    public ResponseEntity<ResponseDTO> updateCategory(Category category, UUID categoryId) {
         log.info("In update category method:->>>>>>");
-        Optional<Category> categoryOptional = categoryRepo.findById(category.getId());
+        Optional<Category> categoryOptional = categoryRepo.findById(categoryId);
         if (categoryOptional.isEmpty()){
             log.error("no category record found:->>>>>>>{}", HttpStatus.NOT_FOUND);
             ResponseDTO  response = AppUtils.getResponseDto("no product record found", HttpStatus.NOT_FOUND);
@@ -100,9 +100,8 @@ public class CategoryServiceImpl implements CategoryService {
     }
 
     @Override
-    public ResponseEntity<ResponseDTO> removeCategory(Category category) {
+    public ResponseEntity<ResponseDTO> removeCategory(UUID categoryId) {
         try {
-            UUID categoryId = category.getId();
             log.info("In remove product method:->>>>>>{}", categoryId);
             Optional<Category> categoryOptional = categoryRepo.findById(categoryId);
             if (categoryOptional.isEmpty()){

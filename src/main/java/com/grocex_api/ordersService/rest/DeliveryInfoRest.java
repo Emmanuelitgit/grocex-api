@@ -40,13 +40,13 @@ public class DeliveryInfoRest {
         return deliveryInfoService.findDeliveryInfoByUserId(userId);
     }
 
-    @PutMapping
-    public ResponseEntity<ResponseDTO> updateDeliveryInfo(@RequestBody DeliveryInfo deliveryInfo){
-        return deliveryInfoService.updateDeliveryInfo(deliveryInfo);
+    @PutMapping("/{deliveryInfoId}")
+    public ResponseEntity<ResponseDTO> updateDeliveryInfo(@RequestBody DeliveryInfo deliveryInfo, @PathVariable UUID deliveryInfoId){
+        return deliveryInfoService.updateDeliveryInfo(deliveryInfo, deliveryInfoId);
     }
 
-    @DeleteMapping
-    public ResponseEntity<ResponseDTO> removeDeliveryInfo(@RequestBody DeliveryInfo deliveryInfo){
-        return deliveryInfoService.removeDeliveryInfo(deliveryInfo);
+    @DeleteMapping("/{deliveryInfoId}")
+    public ResponseEntity<ResponseDTO> removeDeliveryInfo(@PathVariable UUID deliveryInfoId){
+        return deliveryInfoService.removeDeliveryInfo(deliveryInfoId);
     }
 }

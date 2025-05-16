@@ -47,9 +47,9 @@ public class OrderRest {
         return orderService.findOrderByUserId(userId);
     }
 
-    @PutMapping
-    public ResponseEntity<ResponseDTO> updateOrder(@RequestBody OrderPayload order){
-        return orderService.updateOrder(order);
+    @PutMapping("/{orderId}")
+    public ResponseEntity<ResponseDTO> updateOrder(@RequestBody OrderPayload order, @PathVariable UUID orderId){
+        return orderService.updateOrder(order, orderId);
     }
 
     @DeleteMapping("/{orderId}")

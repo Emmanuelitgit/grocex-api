@@ -79,20 +79,21 @@ public class ProductServiceImpl implements ProductService {
             boolean isPaginate = paginationPayload.isPaginate();
 
             Page<ProductProjection> productsPage = null;
+            List<ProductProjection> products = null;
             if (isPaginate){
                 Pageable pageable = AppUtils.getPageRequest(paginationPayload);
                 productsPage = productRepo.getProductAndCategory(pageable);
-            }
-
-            List<ProductProjection> products = productRepo.getProductAndCategory();
-            if (products.isEmpty()){
-                log.error("no product record found:->>>>>>>{}", HttpStatus.NOT_FOUND);
-                ResponseDTO  response = AppUtils.getResponseDto("no product record found", HttpStatus.NOT_FOUND);
-                return new ResponseEntity<>(response, HttpStatus.NOT_FOUND);
+            }else {
+                products = productRepo.getProductAndCategory();
+                if (products.isEmpty()){
+                    log.error("no product record found:->>>>>>>{}", HttpStatus.NOT_FOUND);
+                    ResponseDTO  response = AppUtils.getResponseDto("no product record found", HttpStatus.NOT_FOUND);
+                    return new ResponseEntity<>(response, HttpStatus.NOT_FOUND);
+                }
             }
 
             // mapping response to include the image url
-           List<ProductResponse> res = new ArrayList<>();
+           List<Object> res = new ArrayList<>();
             for (ProductProjection projection: isPaginate?productsPage:products){
                 ProductResponse productResponse = ProductResponse.builder()
                         .id(projection.getId())
@@ -106,6 +107,17 @@ public class ProductServiceImpl implements ProductService {
 
                 res.add(productResponse);
             }
+
+            // if paginated add paginated items to the response
+            if (isPaginate){
+                Map<String, Object> paginationItems = new HashMap<>();
+                paginationItems.put("pageable", productsPage.getPageable());
+                paginationItems.put("totalElements", productsPage.getTotalElements());
+                paginationItems.put("totalPages", productsPage.getTotalPages());
+
+                res.add(paginationItems);
+            }
+
             ResponseDTO  response = AppUtils.getResponseDto("products records fetched successfully", HttpStatus.OK, res);
             return new ResponseEntity<>(response, HttpStatus.OK);
         } catch (Exception e) {

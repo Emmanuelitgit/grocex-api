@@ -4,6 +4,7 @@ import com.grocex_api.productService.models.Category;
 import com.grocex_api.productService.serviceImpl.CategoryServiceImpl;
 import com.grocex_api.productService.serviceImpl.ProductServiceImpl;
 import com.grocex_api.response.ResponseDTO;
+import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -24,7 +25,7 @@ public class CategoryRest {
     }
 
     @PostMapping
-    public ResponseEntity<ResponseDTO> saveCategory(@RequestBody Category category){
+    public ResponseEntity<ResponseDTO> saveCategory(@RequestBody @Valid Category category){
         return categoryService.saveCategory(category);
     }
 
@@ -38,13 +39,13 @@ public class CategoryRest {
         return categoryService.findCategoryById(categoryId);
     }
 
-    @PutMapping
-    public ResponseEntity<ResponseDTO> updateCategory(Category category){
-        return categoryService.updateCategory(category);
+    @PutMapping("/{categoryId}")
+    public ResponseEntity<ResponseDTO> updateCategory(@RequestBody @Valid Category category, @PathVariable UUID categoryId){
+        return categoryService.updateCategory(category, categoryId);
     }
 
-    @DeleteMapping
-    public ResponseEntity<ResponseDTO> removeCategory(@RequestBody Category category){
-        return categoryService.removeCategory(category);
+    @DeleteMapping("/{categoryId}")
+    public ResponseEntity<ResponseDTO> removeCategory(@PathVariable UUID categoryId){
+        return categoryService.removeCategory(categoryId);
     }
 }

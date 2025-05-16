@@ -14,6 +14,6 @@ public interface DeliveryInfoService {
     ResponseEntity<ResponseDTO> findAll();
     ResponseEntity<ResponseDTO> finDeliveryInfoById(UUID deliveryInfoId);
     ResponseEntity<ResponseDTO> findDeliveryInfoByUserId(UUID userId);
-    ResponseEntity<ResponseDTO> updateDeliveryInfo(DeliveryInfo deliveryInfo);
-    ResponseEntity<ResponseDTO> removeDeliveryInfo(DeliveryInfo deliveryInfo);
+    ResponseEntity<ResponseDTO> updateDeliveryInfo(DeliveryInfo deliveryInfo, UUID deliveryInfoId);
+    ResponseEntity<ResponseDTO> removeDeliveryInfo(UUID deliveryInfo);
 }

@@ -169,10 +169,10 @@ public class UserServiceImpl implements UserService {
      * @createdAt 27h April 2025
      */
     @Override
-    public ResponseEntity<ResponseDTO> updateUser(UserPayloadDTO userPayload) {
+    public ResponseEntity<ResponseDTO> updateUser(UserPayloadDTO userPayload, UUID userId) {
         try{
             log.info("In update user method:->>>>>>{}", userPayload);
-            User existingData = userRepo.findById(userPayload.getId())
+            User existingData = userRepo.findById(userId)
                     .orElseThrow(()-> new NotFoundException("user record not found"));
 
             existingData.setEmail(userPayload.getEmail() !=null ? userPayload.getEmail() : existingData.getEmail());

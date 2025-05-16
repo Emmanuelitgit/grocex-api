@@ -4,6 +4,7 @@ import com.grocex_api.notificationService.dto.OTPPayload;
 import com.grocex_api.notificationService.serviceImpl.OTPServiceImpl;
 import com.grocex_api.response.ResponseDTO;
 import com.grocex_api.utils.AppUtils;
+import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -28,7 +29,7 @@ public class OTPRest {
     }
 
     @PostMapping("/verify")
-    public ResponseEntity<ResponseDTO> verifyOTP(@RequestBody OTPPayload otpPayload){
+    public ResponseEntity<ResponseDTO> verifyOTP(@RequestBody @Valid OTPPayload otpPayload){
         return otpService.verifyOtp(otpPayload);
     }
 }

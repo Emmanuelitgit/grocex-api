@@ -13,6 +13,6 @@ public interface OrderService {
     ResponseEntity<ResponseDTO> findAll();
     ResponseEntity<ResponseDTO> findOrderById(UUID orderId);
     ResponseEntity<ResponseDTO> findOrderByUserId(UUID userId);
-    ResponseEntity<ResponseDTO> updateOrder(OrderPayload order);
+    ResponseEntity<ResponseDTO> updateOrder(OrderPayload order, UUID orderId);
     ResponseEntity<ResponseDTO> removeOrder(UUID orderId);
 }

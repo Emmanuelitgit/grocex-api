@@ -150,10 +150,10 @@ public class DeliveryInfoServiceImpl implements DeliveryInfoService {
      * @createdAt 4th May 2025
      */
     @Override
-    public ResponseEntity<ResponseDTO> updateDeliveryInfo(DeliveryInfo deliveryInfo) {
+    public ResponseEntity<ResponseDTO> updateDeliveryInfo(DeliveryInfo deliveryInfo, UUID deliveryInfoId) {
      try{
          log.info("In update delivery info method:->>>>>>");
-         Optional<DeliveryInfo> deliveryInfoOptional = deliveryInfoRepo.findById(deliveryInfo.getId());
+         Optional<DeliveryInfo> deliveryInfoOptional = deliveryInfoRepo.findById(deliveryInfoId);
          if (deliveryInfoOptional.isEmpty()){
              ResponseDTO  response = AppUtils.getResponseDto("no delivery inforecord found", HttpStatus.NOT_FOUND);
              return new ResponseEntity<>(response, HttpStatus.NOT_FOUND);
@@ -173,22 +173,22 @@ public class DeliveryInfoServiceImpl implements DeliveryInfoService {
     }
 
     /**
-     * @description This method is used to save delivery info record for an order given the id.
-     * @param deliveryInfo
+     * @description This method is used to remove delivery info record for an order given the id.
+     * @param deliveryInfoId
      * @return
      * @auther Emmanuel Yidana
      * @createdAt 4th May 2025
      */
     @Override
-    public ResponseEntity<ResponseDTO> removeDeliveryInfo(DeliveryInfo deliveryInfo) {
+    public ResponseEntity<ResponseDTO> removeDeliveryInfo(UUID deliveryInfoId) {
       try{
           log.info("In remove delivery info method:->>>>>>");
-          Optional<DeliveryInfo> deliveryInfoOptional = deliveryInfoRepo.findById(deliveryInfo.getId());
+          Optional<DeliveryInfo> deliveryInfoOptional = deliveryInfoRepo.findById(deliveryInfoId);
           if (deliveryInfoOptional.isEmpty()){
               ResponseDTO  response = AppUtils.getResponseDto("no delivery inforecord found", HttpStatus.NOT_FOUND);
               return new ResponseEntity<>(response, HttpStatus.NOT_FOUND);
           }
-          deliveryInfoRepo.deleteById(deliveryInfo.getId());
+          deliveryInfoRepo.deleteById(deliveryInfoOptional.get().getId());
           ResponseDTO  response = AppUtils.getResponseDto("delivery info records deleted successfully", HttpStatus.OK);
           return new ResponseEntity<>(response, HttpStatus.OK);
       }catch (Exception e) {

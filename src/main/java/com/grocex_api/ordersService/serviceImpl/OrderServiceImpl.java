@@ -309,7 +309,7 @@ public class OrderServiceImpl implements OrderService {
 
     @Transactional
     @Override
-    public ResponseEntity<ResponseDTO> updateOrder(OrderPayload orderPayload) {
+    public ResponseEntity<ResponseDTO> updateOrder(OrderPayload orderPayload, UUID orderId) {
        try{
            log.info("In update order method:->>>>>>");
            Optional<Order> orderOptional = orderRepo.findById(orderPayload.getOrderId());
