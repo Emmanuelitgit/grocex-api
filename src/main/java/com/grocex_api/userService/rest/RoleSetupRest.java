@@ -27,7 +27,6 @@ public class RoleSetupRest {
     }
     @PostMapping
     public ResponseEntity<ResponseDTO> saveRole(@RequestBody @Valid RoleSetup roleSetup){
-        System.out.println("DATA:====" + roleSetup.getName());
         return roleSetupServiceImpl.saveRole(roleSetup);
     }
 

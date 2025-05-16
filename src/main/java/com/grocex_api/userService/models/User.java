@@ -1,5 +1,6 @@
 package com.grocex_api.userService.models;
 
+import com.grocex_api.config.AuditorData;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Data;
@@ -11,7 +12,7 @@ import java.util.UUID;
 @Entity
 @Data
 @Table(name = "user_tb")
-public class User {
+public class User extends AuditorData {
 
     @Id
     @GeneratedValue(strategy = GenerationType.UUID)
@@ -22,15 +23,11 @@ public class User {
     private String phone;
     private String username;
     private String password;
-    private UUID createdBy;
-    private ZonedDateTime createdAt;
 
     public User() {
     }
 
-    public User(ZonedDateTime createdAt, UUID createdBy, String email, String firstName, UUID id, String lastName, String password, String phone, String username) {
-        this.createdAt = createdAt;
-        this.createdBy = createdBy;
+    public User(String email, String firstName, UUID id, String lastName, String password, String phone, String username) {
         this.email = email;
         this.firstName = firstName;
         this.id = id;
@@ -38,22 +35,6 @@ public class User {
         this.password = password;
         this.phone = phone;
         this.username = username;
-    }
-
-    public ZonedDateTime getCreatedAt() {
-        return createdAt;
-    }
-
-    public void setCreatedAt(ZonedDateTime createdAt) {
-        this.createdAt = createdAt;
-    }
-
-    public UUID getCreatedBy() {
-        return createdBy;
-    }
-
-    public void setCreatedBy(UUID createdBy) {
-        this.createdBy = createdBy;
     }
 
     public String getEmail() {

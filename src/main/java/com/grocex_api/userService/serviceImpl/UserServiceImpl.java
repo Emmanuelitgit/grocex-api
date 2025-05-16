@@ -97,8 +97,6 @@ public class UserServiceImpl implements UserService {
                    .name(userPayloadDTO.getVendor())
                    .userId(userResponse.getId())
                    .status(userPayloadDTO.getVendorStatus())
-                   .createdBy(userResponse.getId())
-                   .createdAt(ZonedDateTime.now())
                    .build();
            vendorService.saveVendor(vendor);
            log.info("User created successfully:->>>>>>");

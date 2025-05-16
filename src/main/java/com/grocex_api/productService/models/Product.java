@@ -1,5 +1,6 @@
 package com.grocex_api.productService.models;
 
+import com.grocex_api.config.AuditorData;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.NotNull;
 import lombok.AllArgsConstructor;
@@ -15,7 +16,7 @@ import java.util.UUID;
 @Entity
 @NoArgsConstructor
 @AllArgsConstructor
-public class Product {
+public class Product extends AuditorData {
     @Id
     @GeneratedValue(strategy = GenerationType.UUID)
     private UUID id;
@@ -34,6 +35,4 @@ public class Product {
     @Column(columnDefinition = "LONGBLOB")
     @NotNull(message = "product image cannot be null")
     private byte[] image;
-    private UUID createdBy;
-    private ZonedDateTime createdAt;
 }

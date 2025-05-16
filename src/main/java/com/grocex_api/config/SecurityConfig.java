@@ -5,6 +5,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.context.properties.EnableConfigurationProperties;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.data.jpa.repository.config.EnableJpaAuditing;
 import org.springframework.mail.javamail.JavaMailSender;
 import org.springframework.mail.javamail.JavaMailSenderImpl;
 import org.springframework.security.authentication.AuthenticationManager;
@@ -22,6 +23,7 @@ import java.util.Properties;
 
 @Configuration
 @EnableWebSecurity
+@EnableJpaAuditing(auditorAwareRef = "auditorAware")
 public class SecurityConfig {
 
     private final UserDetailsService userDetailsService;
@@ -74,4 +76,8 @@ public class SecurityConfig {
         return mailSender;
     }
 
+    @Bean
+    AuditorAwareImpl auditorAware(){
+        return new AuditorAwareImpl();
+    }
 }
