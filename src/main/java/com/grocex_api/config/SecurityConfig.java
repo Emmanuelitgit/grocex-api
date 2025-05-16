@@ -18,6 +18,8 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.web.client.RestTemplate;
 
+import java.util.Properties;
+
 @Configuration
 @EnableWebSecurity
 public class SecurityConfig {
@@ -56,6 +58,20 @@ public class SecurityConfig {
     @Bean
     RestTemplate restTemplate(){
         return new RestTemplate();
+    }
+
+    @Bean
+    public JavaMailSender getJavaMailSender() {
+        JavaMailSenderImpl mailSender = new JavaMailSenderImpl();
+        mailSender.setHost("smtp.gmail.com");
+        mailSender.setPort(587);
+        mailSender.setUsername("eyidana001@gmail.com");
+        mailSender.setPassword("rukq qdrd enur cfrk");
+
+        Properties props = mailSender.getJavaMailProperties();
+        props.put("mail.smtp.auth", "true");
+        props.put("mail.smtp.starttls.enable", "true");
+        return mailSender;
     }
 
 }

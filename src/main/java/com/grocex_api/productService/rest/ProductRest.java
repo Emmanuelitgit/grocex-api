@@ -8,6 +8,7 @@ import com.grocex_api.productService.repo.ProductRepo;
 import com.grocex_api.productService.serviceImpl.ProductServiceImpl;
 import com.grocex_api.response.ResponseDTO;
 import com.grocex_api.userService.dto.UserPayloadDTO;
+import jakarta.validation.Valid;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -52,26 +53,40 @@ public class ProductRest {
         return productService.findAll(paginationPayload);
     }
 
-    @PostMapping(consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
-    public ResponseEntity<ResponseDTO> saveProduct(
-            @RequestParam("name") String name,
-            @RequestParam("price") Integer price,
-            @RequestParam("quantity") Integer quantity,
-            @RequestParam("ownerId") UUID ownerId,
-            @RequestParam("categoryId") UUID category,
-            @RequestParam("file")  MultipartFile file) throws IOException {
+//    @PostMapping(consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
+//    public ResponseEntity<ResponseDTO> saveProduct(
+//            @RequestParam("name") String name,
+//            @RequestParam("price") Integer price,
+//            @RequestParam("quantity") Integer quantity,
+//            @RequestParam("ownerId") UUID ownerId,
+//            @RequestParam("categoryId") UUID category,
+//            @RequestParam("file")  MultipartFile file) throws IOException {
+//
+//        Product data = Product.builder()
+//                .image(ImageUtil.compressImage(file.getBytes()))
+//                .name(name)
+//                .unitPrice(price)
+//                .quantity(quantity)
+//                .productOwnerId(ownerId)
+//                .categoryId(category)
+//                .categoryId(category)
+//                .build();
+//        return productService.saveProduct(data);
+//    }
 
+    @PostMapping(consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
+    public ResponseEntity<ResponseDTO> saveProduct(@Valid @ModelAttribute ProductRequest productRequest) throws IOException {
         Product data = Product.builder()
-                .image(ImageUtil.compressImage(file.getBytes()))
-                .name(name)
-                .unitPrice(price)
-                .quantity(quantity)
-                .productOwnerId(ownerId)
-                .categoryId(category)
-                .categoryId(category)
+                .image(ImageUtil.compressImage(productRequest.getFile().getBytes()))
+                .name(productRequest.getName())
+                .unitPrice(productRequest.getPrice())
+                .quantity(productRequest.getQuantity())
+                .productOwnerId(productRequest.getOwnerId())
+                .categoryId(productRequest.getCategoryId())
                 .build();
         return productService.saveProduct(data);
     }
+
 
     @GetMapping("/{productId}")
     public ResponseEntity<ResponseDTO> findProductById(@PathVariable UUID productId){
@@ -87,7 +102,7 @@ public class ProductRest {
     public ResponseEntity<ResponseDTO> updateProduct(
             @RequestParam(value = "id", required = false) UUID id,
             @RequestParam(value = "name", required = false) String name,
-            @RequestParam(value = "price", required = false) Integer price,
+            @RequestParam(value = "price", required = false) Float price,
             @RequestParam(value = "quantity", required = false) Integer quantity,
             @RequestParam(value = "ownerId", required = false) UUID ownerId,
             @RequestParam(value = "categoryId", required = false) UUID category,
@@ -97,7 +112,7 @@ public class ProductRest {
                 .id(id)
                 .image(file != null ? file.getBytes() : null)
                 .name(name)
-                .unitPrice(price !=null? price : 0)
+                .unitPrice(price)
                 .quantity(quantity !=null? quantity : 0)
                 .productOwnerId(ownerId)
                 .categoryId(category)

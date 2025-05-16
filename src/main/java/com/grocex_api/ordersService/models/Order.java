@@ -14,6 +14,6 @@ public class Order {
     @GeneratedValue(strategy = GenerationType.UUID)
     private UUID id;
     private UUID customerId;
-    private int totalPrice;
+    private float totalPrice;
     private String status;
 }

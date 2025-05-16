@@ -65,12 +65,12 @@ public class OrderServiceImpl implements OrderService {
            }
 
            // grouping all order details as one order.
-            int entireOrderTotalPrice = 0;
+            float entireOrderTotalPrice = 0;
             UUID customerId = null;
            for (OrderPayload orderPayload:orders){
                Optional<Product> productOptional = productRepo.findById(orderPayload.getProductId());
               if (productOptional.isPresent()){
-                  int totalPrice = calculateTotalPrice(productOptional.get().getUnitPrice(), orderPayload.getQuantity());
+                  float totalPrice = calculateTotalPrice(productOptional.get().getUnitPrice(), orderPayload.getQuantity());
                   entireOrderTotalPrice +=totalPrice;
                   customerId = orderPayload.getCustomerId();
               }
@@ -116,7 +116,7 @@ public class OrderServiceImpl implements OrderService {
                product.setQuantity(productQuantityRemaining);
 
                // calculating the product order total price
-               int productOrderTotalPrice = calculateTotalPrice(product.getUnitPrice(), order.getQuantity());
+               float productOrderTotalPrice = calculateTotalPrice(product.getUnitPrice(), order.getQuantity());
 
                // setting the specific product order updated details
                ProductOrder productOrder = new ProductOrder();
@@ -158,7 +158,7 @@ public class OrderServiceImpl implements OrderService {
 
     }
 
-    private int calculateTotalPrice(int price, int quantity){
+    private float calculateTotalPrice(float price, int quantity){
         return price*quantity;
     }
 
@@ -332,7 +332,7 @@ public class OrderServiceImpl implements OrderService {
                return new ResponseEntity<>(response, HttpStatus.NOT_FOUND);
            }
 
-           int updatedProductOrderTotalPrice = calculateTotalPrice(existingProduct.getUnitPrice(), orderPayload.getQuantity());
+           float updatedProductOrderTotalPrice = calculateTotalPrice(existingProduct.getUnitPrice(), orderPayload.getQuantity());
            int previousProductQuantity = productOrder.getQuantity()+existingProduct.getQuantity();
 
            if (existingProduct.getQuantity()==0){
@@ -352,8 +352,8 @@ public class OrderServiceImpl implements OrderService {
            productOrder.setQuantity(updatedProductQuantity);
            productOrderRepo.save(productOrder);
 
-           int orderTotalPrice = existingOrder.getTotalPrice()-productOrder.getTotalPrice();
-           int updatedOrderTotalPrice = orderTotalPrice + updatedProductOrderTotalPrice;
+           float orderTotalPrice = existingOrder.getTotalPrice()-productOrder.getTotalPrice();
+           float updatedOrderTotalPrice = orderTotalPrice + updatedProductOrderTotalPrice;
 
            existingOrder.setTotalPrice(updatedOrderTotalPrice);
            orderRepo.save(existingOrder);

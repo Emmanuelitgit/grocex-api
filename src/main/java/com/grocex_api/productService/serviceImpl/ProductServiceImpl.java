@@ -249,11 +249,10 @@ public class ProductServiceImpl implements ProductService {
                    .orElseThrow(()-> new NotFoundException("product record not found"));
 
            existingData.setName(product.getName() !=null? product.getName() : existingData.getName());
-           existingData.setFileId(product.getFileId() !=null? product.getFileId() : existingData.getFileId());
            existingData.setCategoryId(product.getCategoryId() !=null? product.getCategoryId() : existingData.getCategoryId());
            existingData.setRating(product.getRating() !=null? product.getRating() : existingData.getRating());
            existingData.setProductOwnerId(product.getProductOwnerId() !=null? product.getProductOwnerId() : existingData.getProductOwnerId());
-           existingData.setUnitPrice(product.getUnitPrice()>0 ? product.getUnitPrice() : existingData.getUnitPrice());
+           existingData.setUnitPrice(product.getUnitPrice() !=null ? product.getUnitPrice() : existingData.getUnitPrice());
            existingData.setQuantity(product.getQuantity()>0? product.getQuantity() : existingData.getQuantity());
            existingData.setImage(product.getImage() !=null?ImageUtil.compressImage(product.getImage()) : existingData.getImage());
            Product productRes = productRepo.save(existingData);

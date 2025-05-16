@@ -14,7 +14,7 @@ public class ProductOrder {
     private UUID id;
     private UUID productId;
     private UUID orderId;
-    private int unitPrice;
-    private int totalPrice;
+    private float unitPrice;
+    private float totalPrice;
     private int quantity;
 }

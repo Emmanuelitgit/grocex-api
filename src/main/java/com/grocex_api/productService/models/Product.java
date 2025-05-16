@@ -24,11 +24,10 @@ public class Product {
     @NotNull(message = "product quantity cannot be null")
     private int quantity;
     @NotNull(message = "product price cannot be null")
-    private int unitPrice;
+    private Float unitPrice;
     @NotNull(message = "product category id cannot be null")
     private UUID categoryId;
-    private UUID fileId;
-    private Integer rating;
+    private Float rating;
     @NotNull(message = "product owner id cannot be null")
     private UUID productOwnerId;
     @Lob

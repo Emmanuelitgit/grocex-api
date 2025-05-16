@@ -6,9 +6,11 @@ import io.jsonwebtoken.ExpiredJwtException;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.HttpStatusCode;
 import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ControllerAdvice;
 
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 @ControllerAdvice
@@ -47,6 +49,21 @@ public class ExceptionHandler {
         Map<String, Object> res = new HashMap<>();
         res.put("message", badRequestException.getMessage());
         res.put("status", HttpStatus.valueOf(400));
+        return new ResponseEntity<>(res, HttpStatusCode.valueOf(400));
+    }
+
+    @org.springframework.web.bind.annotation.ExceptionHandler(MethodArgumentNotValidException.class)
+    ResponseEntity<Object> handleMethodArgumentNotValidException(MethodArgumentNotValidException methodArgumentNotValidException){
+        Map<String, Object> res = new HashMap<>();
+
+        List<String> errors = methodArgumentNotValidException.getBindingResult()
+                .getFieldErrors()
+                .stream()
+                .map(error -> error.getDefaultMessage())
+                .toList();
+
+        res.put("message", errors);
+        res.put("status", HttpStatusCode.valueOf(400));
         return new ResponseEntity<>(res, HttpStatusCode.valueOf(400));
     }
 }
