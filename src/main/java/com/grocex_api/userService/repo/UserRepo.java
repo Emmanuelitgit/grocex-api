@@ -1,13 +1,10 @@
 package com.grocex_api.userService.repo;
 
-import com.grocex_api.userService.dto.UserDTO;
 import com.grocex_api.userService.dto.UserDTOProjection;
 import com.grocex_api.userService.dto.UserProductProjection;
-import com.grocex_api.userService.dto.VendorProjection;
 import com.grocex_api.userService.models.User;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
-import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 
 import java.util.List;
@@ -48,9 +45,6 @@ public interface UserRepo extends JpaRepository<User, UUID> {
             "JOIN role_setup_tb rs ON rs.id=ur.role_id " +
             "WHERE u.email =? ", nativeQuery = true)
     UserDTOProjection getUserRole(String username);
-
-    @Query(value = "SELECT u.vendor FROM user_tb u ", nativeQuery = true)
-    List<VendorProjection> getVendors();
 
     Optional<User> findUserByUsername(String username);
 

@@ -1,5 +1,7 @@
 package com.grocex_api.userService.serviceImpl;
 
+import com.grocex_api.exception.AlreadyExistException;
+import com.grocex_api.exception.BadRequestException;
 import com.grocex_api.exception.NotFoundException;
 import com.grocex_api.productService.models.Vendor;
 import com.grocex_api.productService.serviceImpl.VendorServiceImpl;
@@ -61,6 +63,20 @@ public class UserServiceImpl implements UserService {
            if (userPayloadDTO  == null){
                ResponseDTO  response = AppUtils.getResponseDto("user payload cannot be null", HttpStatus.BAD_REQUEST);
                return new ResponseEntity<>(response, HttpStatus.BAD_REQUEST);
+           }
+
+           // check if email already exist
+           Optional<User> userEmailExist =  userRepo.findUserByEmail(userPayloadDTO.getEmail());
+           if (userEmailExist.isPresent()){
+               ResponseDTO  response = AppUtils.getResponseDto("email already exist", HttpStatus.ALREADY_REPORTED);
+               return new ResponseEntity<>(response, HttpStatus.ALREADY_REPORTED);
+           }
+
+           // check id username already exist
+           Optional<User> usernameExist =  userRepo.findUserByUsername(userPayloadDTO.getUsername());
+           if (usernameExist.isPresent()){
+               ResponseDTO  response = AppUtils.getResponseDto("username already exist", HttpStatus.ALREADY_REPORTED);
+               return new ResponseEntity<>(response, HttpStatus.ALREADY_REPORTED);
            }
 
            userPayloadDTO.setPassword(passwordEncoder.encode(userPayloadDTO.getPassword()));
@@ -163,7 +179,7 @@ public class UserServiceImpl implements UserService {
             existingData.setFirstName(userPayload.getFirstName() !=null ? userPayload.getFirstName() : existingData.getFirstName());
             existingData.setLastName(userPayload.getLastName() !=null ? userPayload.getLastName() : existingData.getLastName());
             existingData.setUsername(userPayload.getUsername() !=null ? userPayload.getUsername() : existingData.getUsername());
-            existingData.setPhone(userPayload.getPhone() >0 ? userPayload.getPhone() : existingData.getPhone());
+            existingData.setPhone(userPayload.getPhone() !=null ? userPayload.getPhone() : existingData.getPhone());
             User userResponse = userRepo.save(existingData);
 
             // getting the role name from the role setup db

@@ -5,6 +5,7 @@ import com.grocex_api.userService.dto.UserDTO;
 import com.grocex_api.userService.dto.UserPayloadDTO;
 import com.grocex_api.userService.models.User;
 import com.grocex_api.userService.serviceImpl.UserServiceImpl;
+import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -23,7 +24,7 @@ public class UserRest {
     }
 
     @PostMapping
-    public ResponseEntity<ResponseDTO> createUser(@RequestBody UserPayloadDTO user){
+    public ResponseEntity<ResponseDTO> createUser(@RequestBody @Valid UserPayloadDTO user){
         return userService.createUser(user);
     }
 
@@ -38,7 +39,7 @@ public class UserRest {
     }
 
     @PutMapping
-    public ResponseEntity<ResponseDTO> updateUser(@RequestBody UserPayloadDTO user){
+    public ResponseEntity<ResponseDTO> updateUser(@RequestBody @Valid UserPayloadDTO user){
         return userService.updateUser(user);
     }
 

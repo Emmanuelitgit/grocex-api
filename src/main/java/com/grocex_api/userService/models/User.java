@@ -19,7 +19,7 @@ public class User {
     private String firstName;
     private String lastName;
     private String email;
-    private int phone;
+    private String phone;
     private String username;
     private String password;
     private UUID createdBy;
@@ -28,7 +28,7 @@ public class User {
     public User() {
     }
 
-    public User(ZonedDateTime createdAt, UUID createdBy, String email, String firstName, UUID id, String lastName, String password, int phone, String username) {
+    public User(ZonedDateTime createdAt, UUID createdBy, String email, String firstName, UUID id, String lastName, String password, String phone, String username) {
         this.createdAt = createdAt;
         this.createdBy = createdBy;
         this.email = email;
@@ -96,11 +96,11 @@ public class User {
         this.password = password;
     }
 
-    public int getPhone() {
+    public String getPhone() {
         return phone;
     }
 
-    public void setPhone(int phone) {
+    public void setPhone(String phone) {
         this.phone = phone;
     }
 

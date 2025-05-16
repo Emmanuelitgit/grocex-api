@@ -19,6 +19,7 @@ import java.util.UUID;
 @NoArgsConstructor
 @Builder
 public class ProductRequest {
+    private UUID id;
     @NotNull(message = "product name cannot be null")
     private String name;
     @NotNull(message = "product quantity cannot be null")

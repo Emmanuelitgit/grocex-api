@@ -2,6 +2,7 @@ package com.grocex_api.ordersService.models;
 
 import com.grocex_api.productService.dto.OrderStatus;
 import jakarta.persistence.*;
+import jakarta.validation.constraints.NotNull;
 import lombok.Data;
 
 import java.util.UUID;

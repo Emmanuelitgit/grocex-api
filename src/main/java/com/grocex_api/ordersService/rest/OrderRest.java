@@ -4,6 +4,7 @@ import com.grocex_api.ordersService.dto.OrderPayload;
 import com.grocex_api.ordersService.models.Order;
 import com.grocex_api.ordersService.serviceImpl.OrderServiceImpl;
 import com.grocex_api.response.ResponseDTO;
+import jakarta.validation.Valid;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
@@ -26,7 +27,7 @@ public class OrderRest {
     }
 
     @PostMapping
-    public ResponseEntity<ResponseDTO> saveOrder(@RequestBody List<OrderPayload> orders){
+    public ResponseEntity<ResponseDTO> saveOrder(@RequestBody @Valid List<OrderPayload> orders){
         return orderService.saveOrder(orders);
     }
 
@@ -47,12 +48,12 @@ public class OrderRest {
     }
 
     @PutMapping
-    public ResponseEntity<ResponseDTO> updateOrder(OrderPayload order){
+    public ResponseEntity<ResponseDTO> updateOrder(@RequestBody OrderPayload order){
         return orderService.updateOrder(order);
     }
 
-    @DeleteMapping
-    public ResponseEntity<ResponseDTO> removeOrder(UUID orderId){
+    @DeleteMapping("/{orderId}")
+    public ResponseEntity<ResponseDTO> removeOrder(@PathVariable UUID orderId){
         return orderService.removeOrder(orderId);
     }
 }

@@ -4,23 +4,18 @@ import com.grocex_api.imageUtility.ImageUtil;
 import com.grocex_api.productService.dto.PaginationPayload;
 import com.grocex_api.productService.dto.ProductRequest;
 import com.grocex_api.productService.models.Product;
-import com.grocex_api.productService.repo.ProductRepo;
 import com.grocex_api.productService.serviceImpl.ProductServiceImpl;
 import com.grocex_api.response.ResponseDTO;
-import com.grocex_api.userService.dto.UserPayloadDTO;
 import jakarta.validation.Valid;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
-import org.springframework.http.HttpStatusCode;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.io.IOException;
-import java.util.List;
-import java.util.Map;
 import java.util.UUID;
 
 @Slf4j
@@ -29,12 +24,10 @@ import java.util.UUID;
 public class ProductRest {
 
     private final ProductServiceImpl productService;
-    private final ProductRepo productRepo;
 
     @Autowired
-    public ProductRest(ProductServiceImpl productService, ProductRepo productRepo) {
+    public ProductRest(ProductServiceImpl productService) {
         this.productService = productService;
-        this.productRepo = productRepo;
     }
 
     @GetMapping
@@ -53,26 +46,6 @@ public class ProductRest {
         return productService.findAll(paginationPayload);
     }
 
-//    @PostMapping(consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
-//    public ResponseEntity<ResponseDTO> saveProduct(
-//            @RequestParam("name") String name,
-//            @RequestParam("price") Integer price,
-//            @RequestParam("quantity") Integer quantity,
-//            @RequestParam("ownerId") UUID ownerId,
-//            @RequestParam("categoryId") UUID category,
-//            @RequestParam("file")  MultipartFile file) throws IOException {
-//
-//        Product data = Product.builder()
-//                .image(ImageUtil.compressImage(file.getBytes()))
-//                .name(name)
-//                .unitPrice(price)
-//                .quantity(quantity)
-//                .productOwnerId(ownerId)
-//                .categoryId(category)
-//                .categoryId(category)
-//                .build();
-//        return productService.saveProduct(data);
-//    }
 
     @PostMapping(consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
     public ResponseEntity<ResponseDTO> saveProduct(@Valid @ModelAttribute ProductRequest productRequest) throws IOException {
@@ -100,7 +73,7 @@ public class ProductRest {
 
     @PutMapping(consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
     public ResponseEntity<ResponseDTO> updateProduct(
-            @RequestParam(value = "id", required = false) UUID id,
+            @RequestParam(value = "id") UUID id,
             @RequestParam(value = "name", required = false) String name,
             @RequestParam(value = "price", required = false) Float price,
             @RequestParam(value = "quantity", required = false) Integer quantity,

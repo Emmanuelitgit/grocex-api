@@ -13,7 +13,7 @@ public interface UserDTOProjection {
     String getFirstName();
     String getLastName();
     String getEmail();
-    Integer getPhone();
+    String getPhone();
     String getUsername();
     String getVendor();
     String getRole();
