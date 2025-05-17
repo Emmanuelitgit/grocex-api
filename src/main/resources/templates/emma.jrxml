@@ -1,0 +1,410 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- Created with Jaspersoft Studio version 6.19.1.final using JasperReports Library version 6.19.1-867c00bf88cd4d784d404379d6c05e1b419e8a4c  -->
+<jasperReport xmlns="http://jasperreports.sourceforge.net/jasperreports" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://jasperreports.sourceforge.net/jasperreports http://jasperreports.sourceforge.net/xsd/jasperreport.xsd" name="rpt_RentControlForm5" pageWidth="595" pageHeight="842" columnWidth="555" leftMargin="20" rightMargin="20" topMargin="20" bottomMargin="20" uuid="12992fd5-87a6-4d06-abb3-f4c85eab1b1b">
+	<property name="com.jaspersoft.studio.data.defaultdataadapter" value="One Empty Record"/>
+	<parameter name="rentLogo" class="java.lang.String"/>
+	<queryString>
+		<![CDATA[]]>
+	</queryString>
+	<field name="applicationNumber" class="java.lang.String"/>
+	<field name="addressOfPremises" class="java.lang.String"/>
+	<field name="nameOfLandLord" class="java.lang.String"/>
+	<field name="nameOfTenant" class="java.lang.String"/>
+	<field name="currentRent" class="java.lang.Double"/>
+	<field name="rentForFixturesAndFitting" class="java.lang.Double"/>
+	<field name="futureRentAssessed" class="java.lang.Double"/>
+	<field name="rates" class="java.lang.String"/>
+	<field name="portionOfPremises" class="java.lang.String"/>
+	<field name="ratesForEntirePremises" class="java.lang.Double"/>
+	<field name="rentForTimeBeingInForce" class="java.lang.Double"/>
+	<field name="apportionmentOfRent" class="java.math.BigDecimal"/>
+	<field name="otherMatters" class="java.lang.String"/>
+	<field name="createdAt" class="java.time.ZonedDateTime"/>
+	<field name="unitName" class="java.lang.String"/>
+	<background>
+		<band height="595" splitType="Stretch">
+			<property name="com.jaspersoft.studio.unit.height" value="px"/>
+			<image hAlign="Center" vAlign="Middle">
+				<reportElement x="180" y="180" width="200" height="200" uuid="5ec559b0-e384-44fa-b405-b410a8fb0ba3"/>
+				<imageExpression><![CDATA[$P{rentLogo}]]></imageExpression>
+			</image>
+		</band>
+	</background>
+	<title>
+		<band height="41" splitType="Stretch">
+			<rectangle>
+				<reportElement mode="Opaque" x="0" y="39" width="555" height="2" backcolor="#030303" uuid="1355fe83-5fb3-4756-8ed4-9a277ccd1366">
+					<property name="com.jaspersoft.studio.unit.height" value="px"/>
+				</reportElement>
+				<graphicElement>
+					<pen lineWidth="0.0"/>
+				</graphicElement>
+			</rectangle>
+			<textField textAdjust="ScaleFont" isBlankWhenNull="true">
+				<reportElement x="100" y="10" width="455" height="20" uuid="f5c2ce38-98c9-46e6-9643-7079df3b96fc">
+					<property name="com.jaspersoft.studio.unit.y" value="pixel"/>
+					<property name="com.jaspersoft.studio.unit.height" value="px"/>
+					<property name="com.jaspersoft.studio.unit.leftIndent" value="px"/>
+					<property name="com.jaspersoft.studio.unit.width" value="px"/>
+				</reportElement>
+				<textElement verticalAlignment="Middle">
+					<font fontName="SansSerif" isBold="false"/>
+					<paragraph leftIndent="10"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$F{createdAt}]]></textFieldExpression>
+			</textField>
+			<staticText>
+				<reportElement x="0" y="11" width="100" height="20" uuid="0b2982ed-243f-42ba-8fdd-e1b856d21c8a">
+					<property name="com.jaspersoft.studio.unit.height" value="px"/>
+					<property name="com.jaspersoft.studio.unit.leftIndent" value="px"/>
+				</reportElement>
+				<textElement verticalAlignment="Middle">
+					<font fontName="SansSerif" isBold="true"/>
+					<paragraph leftIndent="10"/>
+				</textElement>
+				<text><![CDATA[Date]]></text>
+			</staticText>
+		</band>
+	</title>
+	<pageHeader>
+		<band height="30" splitType="Stretch">
+			<staticText>
+				<reportElement x="0" y="0" width="555" height="30" uuid="f31a3a04-ed08-4cbb-907a-11ad1bd0c943">
+					<property name="com.jaspersoft.studio.unit.height" value="px"/>
+				</reportElement>
+				<textElement textAlignment="Center" verticalAlignment="Middle">
+					<font size="16" isBold="true"/>
+				</textElement>
+				<text><![CDATA[FORM 5]]></text>
+			</staticText>
+		</band>
+	</pageHeader>
+	<columnHeader>
+		<band height="20" splitType="Stretch">
+			<staticText>
+				<reportElement x="0" y="0" width="555" height="20" uuid="5907968a-3a56-499c-aa26-aed13da0b6c9">
+					<property name="com.jaspersoft.studio.unit.height" value="px"/>
+				</reportElement>
+				<textElement textAlignment="Center" verticalAlignment="Middle">
+					<font size="12" isBold="true"/>
+				</textElement>
+				<text><![CDATA[SUMMONS TO PERSONS AGAINST WHOM COMPLAINTS HAVE BEEN MADE]]></text>
+			</staticText>
+		</band>
+	</columnHeader>
+	<detail>
+		<band height="220" splitType="Stretch">
+			<staticText>
+				<reportElement x="180" y="40" width="200" height="20" uuid="0a502689-ab2f-4ca1-a6ce-a8303a928f83">
+					<property name="com.jaspersoft.studio.unit.height" value="px"/>
+					<property name="com.jaspersoft.studio.unit.leftIndent" value="px"/>
+				</reportElement>
+				<textElement textAlignment="Center" verticalAlignment="Middle">
+					<font isBold="true"/>
+					<paragraph leftIndent="10"/>
+				</textElement>
+				<text><![CDATA[{Rent Regulation, 1964 (LI 369)}]]></text>
+			</staticText>
+			<staticText>
+				<reportElement x="180" y="20" width="200" height="20" uuid="905d6c30-1ed9-41bb-a629-70a44be775e0">
+					<property name="com.jaspersoft.studio.unit.height" value="px"/>
+					<property name="com.jaspersoft.studio.unit.leftIndent" value="px"/>
+				</reportElement>
+				<textElement textAlignment="Center" verticalAlignment="Middle">
+					<font size="12" isBold="true" isItalic="true"/>
+					<paragraph leftIndent="10"/>
+				</textElement>
+				<text><![CDATA[Regulation 38(2)]]></text>
+			</staticText>
+			<staticText>
+				<reportElement x="0" y="90" width="555" height="40" uuid="6cab7215-1ea7-45bb-9205-96fa46a6de5c">
+					<property name="com.jaspersoft.studio.unit.height" value="px"/>
+					<property name="com.jaspersoft.studio.unit.leftIndent" value="px"/>
+				</reportElement>
+				<textElement verticalAlignment="Middle">
+					<font fontName="SansSerif" isBold="false"/>
+					<paragraph leftIndent="10"/>
+				</textElement>
+				<text><![CDATA[It is hereby certified that the rent(s), rates of the premises specified in the schedule is/*are assessed/*apportioned as shown hereunder. This certificate is given without any erasure.]]></text>
+			</staticText>
+			<textField textAdjust="ScaleFont" isBlankWhenNull="true">
+				<reportElement x="280" y="185" width="275" height="20" uuid="94e4aec4-108b-41f5-9c48-1e58dd1ae90c">
+					<property name="com.jaspersoft.studio.unit.height" value="px"/>
+					<property name="com.jaspersoft.studio.unit.width" value="px"/>
+					<property name="com.jaspersoft.studio.unit.rightIndent" value="px"/>
+				</reportElement>
+				<textElement textAlignment="Right" verticalAlignment="Middle">
+					<font fontName="SansSerif"/>
+					<paragraph rightIndent="10"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$F{unitName} != null ? "Rent Officer for " + $F{unitName} : ""]]></textFieldExpression>
+			</textField>
+			<staticText>
+				<reportElement x="280" y="145" width="275" height="20" uuid="7926e97f-cd08-4f41-acf2-8c0905772817">
+					<property name="com.jaspersoft.studio.unit.height" value="px"/>
+					<property name="com.jaspersoft.studio.unit.leftIndent" value="px"/>
+				</reportElement>
+				<textElement textAlignment="Right" verticalAlignment="Middle">
+					<font fontName="SansSerif" isBold="true"/>
+					<paragraph leftIndent="10"/>
+				</textElement>
+				<text><![CDATA[...........................................................]]></text>
+			</staticText>
+			<staticText>
+				<reportElement x="380" y="165" width="175" height="20" uuid="ddfdcdb6-f086-4b9e-a446-41004a2802db">
+					<property name="com.jaspersoft.studio.unit.height" value="px"/>
+					<property name="com.jaspersoft.studio.unit.leftIndent" value="px"/>
+				</reportElement>
+				<textElement textAlignment="Center" verticalAlignment="Middle">
+					<font fontName="SansSerif" isBold="true"/>
+					<paragraph leftIndent="10"/>
+				</textElement>
+				<text><![CDATA[(Signature)]]></text>
+			</staticText>
+		</band>
+		<band height="120">
+			<staticText>
+				<reportElement x="150" y="0" width="230" height="20" uuid="c6e33679-fc50-4431-9a7f-d0154081f1b1">
+					<property name="com.jaspersoft.studio.unit.height" value="px"/>
+					<property name="com.jaspersoft.studio.unit.leftIndent" value="px"/>
+				</reportElement>
+				<textElement textAlignment="Center" verticalAlignment="Middle">
+					<font fontName="SansSerif" isBold="true"/>
+					<paragraph leftIndent="10"/>
+				</textElement>
+				<text><![CDATA[SCHEDULE]]></text>
+			</staticText>
+			<textField textAdjust="ScaleFont" isBlankWhenNull="true">
+				<reportElement x="150" y="40" width="405" height="20" uuid="722ca531-7f82-4616-adb1-471eabed44ca">
+					<property name="com.jaspersoft.studio.unit.leftIndent" value="px"/>
+				</reportElement>
+				<textElement verticalAlignment="Middle">
+					<font fontName="SansSerif"/>
+					<paragraph leftIndent="10"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$F{applicationNumber}]]></textFieldExpression>
+			</textField>
+			<textField textAdjust="ScaleFont" isBlankWhenNull="true">
+				<reportElement x="150" y="60" width="405" height="20" uuid="7a822a11-1237-4ffa-87fb-d1954ce34fd7">
+					<property name="com.jaspersoft.studio.unit.leftIndent" value="px"/>
+				</reportElement>
+				<textElement verticalAlignment="Middle">
+					<font fontName="SansSerif"/>
+					<paragraph leftIndent="10"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$F{addressOfPremises}]]></textFieldExpression>
+			</textField>
+			<textField textAdjust="ScaleFont" isBlankWhenNull="true">
+				<reportElement x="150" y="80" width="405" height="20" uuid="dc2dfea7-ea94-461d-8347-be6e5fc452d6">
+					<property name="com.jaspersoft.studio.unit.leftIndent" value="px"/>
+				</reportElement>
+				<textElement verticalAlignment="Middle">
+					<font fontName="SansSerif"/>
+					<paragraph leftIndent="10"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$F{nameOfLandLord}]]></textFieldExpression>
+			</textField>
+			<textField textAdjust="ScaleFont" isBlankWhenNull="true">
+				<reportElement x="150" y="100" width="405" height="20" uuid="6d0daabe-1388-4d3c-bef2-742b559226ad">
+					<property name="com.jaspersoft.studio.unit.leftIndent" value="px"/>
+				</reportElement>
+				<textElement verticalAlignment="Middle">
+					<font fontName="SansSerif"/>
+					<paragraph leftIndent="10"/>
+				</textElement>
+				<textFieldExpression><![CDATA[ $F{rates}]]></textFieldExpression>
+			</textField>
+			<staticText>
+				<reportElement x="0" y="100" width="150" height="20" uuid="e7db5bea-b354-4d59-b652-9c87673aebe9">
+					<property name="com.jaspersoft.studio.unit.height" value="px"/>
+					<property name="com.jaspersoft.studio.unit.leftIndent" value="px"/>
+				</reportElement>
+				<textElement textAlignment="Left" verticalAlignment="Middle">
+					<font fontName="SansSerif" size="9" isBold="true"/>
+					<paragraph leftIndent="10"/>
+				</textElement>
+				<text><![CDATA[Rates, etc., for entire premises]]></text>
+			</staticText>
+			<staticText>
+				<reportElement x="0" y="40" width="150" height="20" uuid="937b20a7-b082-4a37-a262-5167033cf487">
+					<property name="com.jaspersoft.studio.unit.height" value="px"/>
+					<property name="com.jaspersoft.studio.unit.leftIndent" value="px"/>
+				</reportElement>
+				<textElement textAlignment="Left" verticalAlignment="Middle">
+					<font fontName="SansSerif" size="9" isBold="true"/>
+					<paragraph leftIndent="10"/>
+				</textElement>
+				<text><![CDATA[Application Number]]></text>
+			</staticText>
+			<staticText>
+				<reportElement x="0" y="60" width="150" height="20" uuid="06b02cb6-976d-4c0c-b460-0c3ddd6d5233">
+					<property name="com.jaspersoft.studio.unit.height" value="px"/>
+					<property name="com.jaspersoft.studio.unit.leftIndent" value="px"/>
+				</reportElement>
+				<textElement textAlignment="Left" verticalAlignment="Middle">
+					<font fontName="SansSerif" size="9" isBold="true"/>
+					<paragraph leftIndent="10"/>
+				</textElement>
+				<text><![CDATA[Address of Premises]]></text>
+			</staticText>
+			<staticText>
+				<reportElement x="0" y="80" width="150" height="20" uuid="a3756fad-2c86-4eb6-b19c-2118ded1158c">
+					<property name="com.jaspersoft.studio.unit.height" value="px"/>
+					<property name="com.jaspersoft.studio.unit.leftIndent" value="px"/>
+				</reportElement>
+				<textElement textAlignment="Left" verticalAlignment="Middle">
+					<font fontName="SansSerif" size="9" isBold="true"/>
+					<paragraph leftIndent="10"/>
+				</textElement>
+				<text><![CDATA[Name of Landlord]]></text>
+			</staticText>
+		</band>
+		<band height="70">
+			<staticText>
+				<reportElement mode="Opaque" x="0" y="10" width="70" height="40" backcolor="#B8B8B8" uuid="a5c59ef4-9196-408e-8e14-c5c9bf730ed6">
+					<property name="com.jaspersoft.studio.unit.width" value="px"/>
+				</reportElement>
+				<textElement textAlignment="Center" verticalAlignment="Middle">
+					<font fontName="SansSerif" size="8" isBold="true"/>
+					<paragraph leftIndent="0"/>
+				</textElement>
+				<text><![CDATA[Name of Tenant]]></text>
+			</staticText>
+			<staticText>
+				<reportElement mode="Opaque" x="70" y="10" width="80" height="40" backcolor="#B8B8B8" uuid="7c787228-41ae-49b2-98df-530c94ef1c5e"/>
+				<textElement textAlignment="Center" verticalAlignment="Middle">
+					<font fontName="SansSerif" size="8" isBold="true"/>
+					<paragraph leftIndent="0"/>
+				</textElement>
+				<text><![CDATA[Particulars of Portion of Premises]]></text>
+			</staticText>
+			<staticText>
+				<reportElement mode="Opaque" x="150" y="10" width="80" height="40" backcolor="#B8B8B8" uuid="03976b03-3f18-4bbb-9a6d-4145fde22fd8"/>
+				<textElement textAlignment="Center" verticalAlignment="Middle">
+					<font fontName="SansSerif" size="8" isBold="true"/>
+					<paragraph leftIndent="0"/>
+				</textElement>
+				<text><![CDATA[Rent for Time being in force]]></text>
+			</staticText>
+			<staticText>
+				<reportElement mode="Opaque" x="230" y="10" width="80" height="40" backcolor="#B8B8B8" uuid="f297a79f-50a3-4fac-99ef-128cc052f86b">
+					<property name="com.jaspersoft.studio.unit.height" value="px"/>
+					<property name="com.jaspersoft.studio.unit.leftIndent" value="px"/>
+					<property name="com.jaspersoft.studio.unit.width" value="px"/>
+				</reportElement>
+				<textElement textAlignment="Center" verticalAlignment="Middle">
+					<font fontName="SansSerif" size="8" isBold="true"/>
+					<paragraph leftIndent="0"/>
+				</textElement>
+				<text><![CDATA[Appointment of Rent, etc.]]></text>
+			</staticText>
+			<staticText>
+				<reportElement mode="Opaque" x="310" y="10" width="80" height="40" backcolor="#B8B8B8" uuid="795e1f15-3c67-43ae-b4cc-49ef84414002"/>
+				<textElement textAlignment="Center" verticalAlignment="Middle">
+					<font fontName="SansSerif" size="8" isBold="true"/>
+					<paragraph leftIndent="0"/>
+				</textElement>
+				<text><![CDATA[Rent Fixtures and Fittings]]></text>
+			</staticText>
+			<staticText>
+				<reportElement mode="Opaque" x="390" y="10" width="80" height="40" backcolor="#B8B8B8" uuid="75bdb0fa-e9aa-4ca6-a518-a114bdbacada"/>
+				<textElement textAlignment="Center" verticalAlignment="Middle">
+					<font fontName="SansSerif" size="8" isBold="true"/>
+					<paragraph leftIndent="0"/>
+				</textElement>
+				<text><![CDATA[Future Rent Assessed under the Act]]></text>
+			</staticText>
+			<staticText>
+				<reportElement mode="Opaque" x="470" y="10" width="85" height="40" backcolor="#B8B8B8" uuid="e7f2790e-bd8d-47fe-9554-0e9efd83dce9"/>
+				<textElement textAlignment="Center" verticalAlignment="Middle">
+					<font fontName="SansSerif" size="8" isBold="true"/>
+					<paragraph leftIndent="0"/>
+				</textElement>
+				<text><![CDATA[Other Matters including other conditions of Tenancy]]></text>
+			</staticText>
+			<textField textAdjust="StretchHeight" isBlankWhenNull="true">
+				<reportElement x="0" y="50" width="70" height="20" uuid="a7bb76eb-a598-46a6-83ca-d82774b0c03e">
+					<property name="com.jaspersoft.studio.unit.leftIndent" value="px"/>
+				</reportElement>
+				<textElement textAlignment="Center" verticalAlignment="Middle">
+					<font fontName="SansSerif"/>
+					<paragraph leftIndent="10"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$F{nameOfTenant}]]></textFieldExpression>
+			</textField>
+			<textField textAdjust="StretchHeight" isBlankWhenNull="true">
+				<reportElement x="70" y="50" width="80" height="20" uuid="f0807088-9b7b-42cf-84f5-176d534cc9f8">
+					<property name="com.jaspersoft.studio.unit.leftIndent" value="px"/>
+				</reportElement>
+				<textElement textAlignment="Center" verticalAlignment="Middle">
+					<font fontName="SansSerif"/>
+					<paragraph leftIndent="10"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$F{portionOfPremises}.replaceAll(",", "\n\n")]]></textFieldExpression>
+			</textField>
+			<textField textAdjust="StretchHeight" isBlankWhenNull="true">
+				<reportElement x="150" y="50" width="80" height="20" uuid="a710339f-a99b-495c-81d9-c33a6a02e17a">
+					<property name="com.jaspersoft.studio.unit.leftIndent" value="px"/>
+				</reportElement>
+				<textElement textAlignment="Center" verticalAlignment="Middle">
+					<font fontName="SansSerif"/>
+					<paragraph leftIndent="10"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$F{rentForTimeBeingInForce}]]></textFieldExpression>
+			</textField>
+			<textField textAdjust="StretchHeight" isBlankWhenNull="true">
+				<reportElement x="230" y="50" width="80" height="20" uuid="9ca05eae-d923-4340-aa2b-d60b2a3d587e">
+					<property name="com.jaspersoft.studio.unit.leftIndent" value="px"/>
+				</reportElement>
+				<textElement textAlignment="Center" verticalAlignment="Middle">
+					<font fontName="SansSerif"/>
+					<paragraph leftIndent="10"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$F{apportionmentOfRent}]]></textFieldExpression>
+			</textField>
+			<textField textAdjust="StretchHeight" isBlankWhenNull="true">
+				<reportElement x="310" y="50" width="80" height="20" uuid="c9ff3775-4869-4c45-b12c-d47dabcca157">
+					<property name="com.jaspersoft.studio.unit.leftIndent" value="px"/>
+				</reportElement>
+				<textElement textAlignment="Center" verticalAlignment="Middle">
+					<font fontName="SansSerif"/>
+					<paragraph leftIndent="10"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$F{rentForFixturesAndFitting}]]></textFieldExpression>
+			</textField>
+			<textField textAdjust="StretchHeight" isBlankWhenNull="true">
+				<reportElement x="390" y="50" width="80" height="20" uuid="70bdd5c5-6ebf-41dc-a0c0-274f36c2a282">
+					<property name="com.jaspersoft.studio.unit.leftIndent" value="px"/>
+				</reportElement>
+				<textElement textAlignment="Center" verticalAlignment="Middle">
+					<font fontName="SansSerif"/>
+					<paragraph leftIndent="10"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$F{futureRentAssessed}]]></textFieldExpression>
+			</textField>
+			<textField textAdjust="StretchHeight" isBlankWhenNull="true">
+				<reportElement x="470" y="50" width="85" height="20" uuid="ecbbd655-c43a-455c-ba6e-27b4841ada7f">
+					<property name="com.jaspersoft.studio.unit.leftIndent" value="px"/>
+				</reportElement>
+				<textElement textAlignment="Center" verticalAlignment="Middle">
+					<font fontName="SansSerif"/>
+					<paragraph leftIndent="10"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$F{otherMatters}]]></textFieldExpression>
+			</textField>
+		</band>
+	</detail>
+	<pageFooter>
+		<band height="20" splitType="Stretch">
+			<staticText>
+				<reportElement x="0" y="5" width="555" height="15" uuid="b8ee44a1-7770-4f3e-9153-784e77dfb9f0">
+					<property name="com.jaspersoft.studio.unit.height" value="px"/>
+				</reportElement>
+				<textElement textAlignment="Center" verticalAlignment="Middle">
+					<font fontName="SansSerif" size="10"/>
+				</textElement>
+				<text><![CDATA[~~~   We Promote & Reconcile Parties   ~~~]]></text>
+			</staticText>
+		</band>
+	</pageFooter>
+</jasperReport>

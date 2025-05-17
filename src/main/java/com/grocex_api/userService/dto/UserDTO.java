@@ -13,6 +13,7 @@ import java.util.UUID;
 
 @Component
 @Data
+@Builder
 @AllArgsConstructor
 @NoArgsConstructor
 public class UserDTO {

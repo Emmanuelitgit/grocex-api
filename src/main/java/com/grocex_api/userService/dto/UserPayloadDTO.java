@@ -39,6 +39,4 @@ public class UserPayloadDTO {
     private VendorStatus vendorStatus;
     @NotNull(message = "vendor name cannot be null")
     private String vendor;
-    private UUID createdBy;
-    private ZonedDateTime createdAt;
 }
