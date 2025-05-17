@@ -6,6 +6,7 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
+import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 
 import java.util.List;
@@ -16,13 +17,15 @@ public interface ProductRepo extends JpaRepository<Product, UUID> {
 
     @Query(value = "SELECT BIN_TO_UUID(p.id) AS id, p.name AS product, p.unit_price, p.quantity, u.vendor, ct.name As category FROM product p" +
             " JOIN user_tb u ON u.id=p.product_owner_id " +
-            "JOIN category_tb ct on p.category_id = ct.id ", nativeQuery = true)
-    List<ProductProjection> getProductAndCategory();
+            "JOIN category_tb ct on p.category_id = ct.id " +
+            " WHERE (:category IS NULL OR ct.name=:category) AND (:product IS NULL OR p.name= :product) ", nativeQuery = true)
+    List<ProductProjection> getProductAndCategory(@Param("category") String category, @Param(("product")) String product);
 
     @Query(value = "SELECT BIN_TO_UUID(p.id) AS id, p.name AS product, p.unit_price, p.quantity, u.vendor, ct.name As category FROM product p" +
             " JOIN user_tb u ON u.id=p.product_owner_id " +
-            "JOIN category_tb ct on p.category_id = ct.id ", nativeQuery = true)
-    Page<ProductProjection> getProductAndCategory(Pageable pageable);
+            "JOIN category_tb ct on p.category_id = ct.id " +
+            " WHERE (:category IS NULL OR ct.name=:category) AND (:product IS NULL OR p.name= :product) ", nativeQuery = true)
+    Page<ProductProjection> getProductAndCategory(@Param("category") String category, @Param(("product")) String product, Pageable pageable);
 
     @Query(value = "SELECT BIN_TO_UUID(p.id) AS id, p.name AS product, p.unit_price, p.quantity, u.vendor, ct.name As category FROM product p" +
             " JOIN user_tb u ON u.id=p.product_owner_id " +

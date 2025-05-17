@@ -15,4 +15,6 @@ public class PaginationPayload {
     private boolean paginate;
     private int page;
     private int size;
+    private String category;
+    private String product;
 }

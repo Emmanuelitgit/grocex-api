@@ -34,7 +34,9 @@ public class ProductRest {
     public ResponseEntity<ResponseDTO> findAll(
             @RequestParam(name = "page", defaultValue = "1", required = false) int page,
             @RequestParam(name = "size", defaultValue = "10", required = false) int size,
-            @RequestParam(name = "paginate", defaultValue = "false", required = false) boolean paginate
+            @RequestParam(name = "paginate", defaultValue = "false", required = false) boolean paginate,
+            @RequestParam(name = "category", required = false) String category,
+            @RequestParam(name = "product", required = false) String product
     ){
 
         PaginationPayload paginationPayload = PaginationPayload
@@ -42,6 +44,8 @@ public class ProductRest {
                 .page(page)
                 .paginate(paginate)
                 .size(size)
+                .product(product)
+                .category(category)
                 .build();
         return productService.findAll(paginationPayload);
     }

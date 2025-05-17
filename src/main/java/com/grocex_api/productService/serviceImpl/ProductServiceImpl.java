@@ -14,6 +14,7 @@ import com.grocex_api.utils.AppUtils;
 import jakarta.transaction.Transactional;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Example;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
@@ -76,15 +77,27 @@ public class ProductServiceImpl implements ProductService {
     public ResponseEntity<ResponseDTO> findAll(PaginationPayload paginationPayload) {
         try{
             log.info("In get all products method:->>>>>>");
+
+            Product product = Product
+                    .builder()
+                    .name("Mango")
+                    .build();
+            Example<Product> example = Example.of(product, AppUtils.SEARCH_CONDITION_MATCH_ANY);
+
             boolean isPaginate = paginationPayload.isPaginate();
 
             Page<ProductProjection> productsPage = null;
             List<ProductProjection> products = null;
             if (isPaginate){
                 Pageable pageable = AppUtils.getPageRequest(paginationPayload);
-                productsPage = productRepo.getProductAndCategory(pageable);
+                productsPage = productRepo.getProductAndCategory(paginationPayload.getCategory(), paginationPayload.getProduct(), pageable);
+                if (productsPage.isEmpty()){
+                    log.error("no product record found:->>>>>>>{}", HttpStatus.NOT_FOUND);
+                    ResponseDTO  response = AppUtils.getResponseDto("no product record found", HttpStatus.NOT_FOUND);
+                    return new ResponseEntity<>(response, HttpStatus.NOT_FOUND);
+                }
             }else {
-                products = productRepo.getProductAndCategory();
+                products = productRepo.getProductAndCategory(paginationPayload.getCategory(), paginationPayload.getProduct());
                 if (products.isEmpty()){
                     log.error("no product record found:->>>>>>>{}", HttpStatus.NOT_FOUND);
                     ResponseDTO  response = AppUtils.getResponseDto("no product record found", HttpStatus.NOT_FOUND);

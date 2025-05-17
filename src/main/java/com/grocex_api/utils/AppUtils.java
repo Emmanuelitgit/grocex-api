@@ -123,30 +123,16 @@ public class AppUtils {
      * @createdAt 16h April 2025
      */
     public static Pageable getPageRequest(PaginationPayload paginationPayload){
-        return PageRequest.of(paginationPayload.getPage(), paginationPayload.getSize());
+        return PageRequest.of(paginationPayload.getPage()-1, paginationPayload.getSize());
     }
 
     public static final ExampleMatcher SEARCH_CONDITION_MATCH_ALL = ExampleMatcher.matchingAll()
-            .withMatcher("typeId", exact())
-            .withMatcher("location.regionId", exact())
-            .withMatcher("location.districtId", exact())
-            .withMatcher("landlordId", exact())
-            .withMatcher("propertyGenerals.general.id", exact())
-            .withMatcher("propertyGenerals.generalSub.id", exact())
-            .withIgnorePaths("id", "coordinates", "createdBy", "updatedBy", "createdAt", "updatedAt")
-            .withMatcher("name", contains().ignoreCase())
-            .withMatcher("description", contains().ignoreCase())
-            .withMatcher("featureImg", contains().ignoreCase());
+            .withMatcher("price", exact())
+            .withIgnorePaths("id", "createdBy", "updatedBy", "createdAt", "updatedAt")
+            .withMatcher("name", contains().ignoreCase());
 
-    private static final ExampleMatcher SEARCH_CONDITION_MATCH_ANY = ExampleMatcher.matchingAny()
-            .withMatcher("typeId", exact())
-            .withMatcher("location.regionId", exact())
-            .withMatcher("location.districtId", exact())
-            .withMatcher("landlordId", exact())
-            .withMatcher("propertyGenerals.general.id", exact())
-            .withMatcher("propertyGenerals.generalSub.id", exact())
-            .withIgnorePaths("id", "coordinates", "createdBy", "updatedBy", "createdAt", "updatedAt")
-            .withMatcher("name", contains().ignoreCase())
-            .withMatcher("description", contains().ignoreCase())
-            .withMatcher("featureImg", contains().ignoreCase());
+    public static final ExampleMatcher SEARCH_CONDITION_MATCH_ANY = ExampleMatcher.matchingAny()
+            .withMatcher("price", exact())
+            .withIgnorePaths("id", "createdBy", "updatedBy", "createdAt", "updatedAt")
+            .withMatcher("name", contains().ignoreCase());
 }
