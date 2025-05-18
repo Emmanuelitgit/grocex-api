@@ -17,8 +17,8 @@ import java.util.Map;
 public class ExceptionHandler {
 
     @org.springframework.web.bind.annotation.ExceptionHandler(UnAuthorizeException.class)
-    ResponseEntity<ResponseDTO> handleUnAuthorizeException(){
-        ResponseDTO response = AppUtils.getResponseDto("Invalid token", HttpStatus.valueOf(401));
+    ResponseEntity<ResponseDTO> handleUnAuthorizeException(UnAuthorizeException exception){
+        ResponseDTO response = AppUtils.getResponseDto(exception.getMessage(), HttpStatus.valueOf(401));
         return new ResponseEntity<>(response, HttpStatusCode.valueOf(401));
     }
 
@@ -30,26 +30,20 @@ public class ExceptionHandler {
 
     @org.springframework.web.bind.annotation.ExceptionHandler(NotFoundException.class)
     ResponseEntity<Object> handleNotFoundException(NotFoundException exception){
-        Map<String, Object> res = new HashMap<>();
-        res.put("message", exception.getMessage());
-        res.put("status", HttpStatus.valueOf(404));
-        return new ResponseEntity<>(res, HttpStatusCode.valueOf(404));
+        ResponseDTO response = AppUtils.getResponseDto(exception.getMessage(), HttpStatus.NOT_FOUND);
+        return new ResponseEntity<>(response, HttpStatusCode.valueOf(404));
     }
 
     @org.springframework.web.bind.annotation.ExceptionHandler(ServerException.class)
     ResponseEntity<Object> handleServerException(ServerException exception){
-        Map<String, Object> res = new HashMap<>();
-        res.put("message", exception.getMessage());
-        res.put("status", HttpStatus.valueOf(500));
-        return new ResponseEntity<>(res, HttpStatusCode.valueOf(500));
+        ResponseDTO response = AppUtils.getResponseDto(exception.getMessage(), HttpStatus.INTERNAL_SERVER_ERROR);
+        return new ResponseEntity<>(response, HttpStatusCode.valueOf(500));
     }
 
     @org.springframework.web.bind.annotation.ExceptionHandler(BadRequestException.class)
     ResponseEntity<Object> handleBadRequestException(BadRequestException exception){
-        Map<String, Object> res = new HashMap<>();
-        res.put("message", exception.getMessage());
-        res.put("status", HttpStatus.valueOf(400));
-        return new ResponseEntity<>(res, HttpStatusCode.valueOf(400));
+        ResponseDTO response = AppUtils.getResponseDto(exception.getMessage(), HttpStatus.BAD_REQUEST);
+        return new ResponseEntity<>(response, HttpStatusCode.valueOf(400));
     }
 
     @org.springframework.web.bind.annotation.ExceptionHandler(MethodArgumentNotValidException.class)
@@ -69,9 +63,7 @@ public class ExceptionHandler {
 
     @org.springframework.web.bind.annotation.ExceptionHandler(AlreadyExistException.class)
     ResponseEntity<Object> handleAlreadyExistException(AlreadyExistException exception){
-        Map<String, Object> res = new HashMap<>();
-        res.put("message", exception.getMessage());
-        res.put("status", HttpStatus.ALREADY_REPORTED);
-        return new ResponseEntity<>(res, HttpStatusCode.valueOf(208));
+        ResponseDTO response = AppUtils.getResponseDto(exception.getMessage(), HttpStatus.ALREADY_REPORTED);
+        return new ResponseEntity<>(response, HttpStatusCode.valueOf(208));
     }
 }

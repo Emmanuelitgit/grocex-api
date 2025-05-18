@@ -64,7 +64,6 @@ public class ProductRest {
         return productService.saveProduct(data);
     }
 
-
     @GetMapping("/{productId}")
     public ResponseEntity<ResponseDTO> findProductById(@PathVariable UUID productId){
         return productService.findProductById(productId);

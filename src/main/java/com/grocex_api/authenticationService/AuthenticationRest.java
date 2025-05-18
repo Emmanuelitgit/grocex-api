@@ -1,5 +1,6 @@
 package com.grocex_api.authenticationService;
 
+import com.grocex_api.authenticationService.dto.Credentials;
 import com.grocex_api.response.ResponseDTO;
 import com.grocex_api.userService.dto.UserDTOProjection;
 import com.grocex_api.userService.models.User;
@@ -46,7 +47,7 @@ public class AuthenticationRest {
      * @createdAt 30th April 2025
      */
     @PostMapping
-    public ResponseEntity<ResponseDTO> authenticateUser(@RequestBody User credentials){
+    public ResponseEntity<ResponseDTO> authenticateUser(@RequestBody Credentials credentials){
         log.info("In authentication method:=========");
         Authentication authentication = authenticationManager.authenticate(
           new UsernamePasswordAuthenticationToken(
@@ -62,7 +63,7 @@ public class AuthenticationRest {
         }
         UserDTOProjection user = userRepo.getUsersDetailsByUserEmail(credentials.getEmail());
 
-        String token = jwtAccess.generateToken(credentials.getUsername());
+        String token = jwtAccess.generateToken(credentials.getEmail());
         Map<String, String> tokenData = new HashMap<>();
         tokenData.put("username", user.getUsername());
         tokenData.put("email", credentials.getEmail());

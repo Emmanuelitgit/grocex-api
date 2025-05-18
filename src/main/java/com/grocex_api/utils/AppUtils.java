@@ -7,7 +7,9 @@ import com.grocex_api.userService.models.RoleSetup;
 import com.grocex_api.userService.repo.RoleSetupRepo;
 import com.grocex_api.userService.repo.UserRepo;
 import com.grocex_api.userService.repo.UserRoleRepo;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.cache.annotation.Cacheable;
 import org.springframework.data.domain.ExampleMatcher;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
@@ -28,6 +30,7 @@ import java.util.Map;
 import static org.springframework.data.domain.ExampleMatcher.GenericPropertyMatchers.contains;
 import static org.springframework.data.domain.ExampleMatcher.GenericPropertyMatchers.exact;
 
+@Slf4j
 @Component
 public class AppUtils {
 
@@ -81,22 +84,37 @@ public class AppUtils {
     }
 
     /**
+     * This method is used to get authenticated user role and cache it.
+     * @param username
+     * @return
+     * @auther Emmanuel Yidana
+     * @createdAt 18h May 2025
+     */
+    @Cacheable(cacheNames = "userRole")
+    public String getUserRole(String username) {
+        UserDTOProjection role = userRepo.getUserRole(username);
+        log.info("fetched role from db->>>>>");
+        return role.getRole();
+    }
+
+    /**
      * This method is used to set authenticated user authorities.
      * @param username
      * @return
      * @auther Emmanuel Yidana
      * @createdAt 16h April 2025
      */
-    public void setAuthorities(String username){
-        UserDTOProjection role = userRepo.getUserRole(username);
-        SimpleGrantedAuthority authority = new SimpleGrantedAuthority(role.getRole());
+    public void setAuthorities(String username) {
+        String role = getUserRole(username);
+        SimpleGrantedAuthority authority = new SimpleGrantedAuthority(role);
         Collection<GrantedAuthority> grantedAuthorities = new ArrayList<>();
         grantedAuthorities.add(authority);
         Authentication authentication = new UsernamePasswordAuthenticationToken(
-                username, null,grantedAuthorities
+                username, null, grantedAuthorities
         );
         SecurityContextHolder.getContext().setAuthentication(authentication);
     }
+
 
     /**
      * This method is used to get user full name.
@@ -124,6 +142,10 @@ public class AppUtils {
      */
     public static Pageable getPageRequest(PaginationPayload paginationPayload){
         return PageRequest.of(paginationPayload.getPage()-1, paginationPayload.getSize());
+    }
+
+    public static String getAuthenticatedUsername(){
+        return SecurityContextHolder.getContext().getAuthentication().getName();
     }
 
     public static final ExampleMatcher SEARCH_CONDITION_MATCH_ALL = ExampleMatcher.matchingAll()

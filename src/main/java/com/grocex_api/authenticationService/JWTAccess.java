@@ -1,5 +1,6 @@
 package com.grocex_api.authenticationService;
 
+import com.grocex_api.exception.UnAuthorizeException;
 import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.ExpiredJwtException;
 import io.jsonwebtoken.Jwts;
@@ -22,7 +23,7 @@ import java.util.concurrent.TimeUnit;
 public class JWTAccess {
 
     String SECRET = "RKUGLRKBKBSKLGSFIJSBKFBKJSDJBVugdtyidvctyfktvgkuyrcggchvrydtxtxuvyvgghghhhjhkjkjjurtyvkgvK";
-    long MINUTES = TimeUnit.MINUTES.toMillis(30);
+    long MINUTES = TimeUnit.MINUTES.toMillis(60);
 
     /**
      * @auther Emmanuel Yidana
@@ -58,7 +59,7 @@ public class JWTAccess {
                     .parseClaimsJws(token)
                     .getBody();
         } catch (SignatureException | ExpiredJwtException e) {
-            throw new RuntimeException("Invalid token or signature");
+            throw new UnAuthorizeException("Invalid token or signature");
         }
     }
 
@@ -70,9 +71,7 @@ public class JWTAccess {
      * @return username
      */
     public String extractUsername(String token){
-        log.info("TOKEN:->>>{}", token);
         Claims claims = getClaims(token);
-        log.info("CLAIMS:->>>{}", claims);
         return claims.getSubject();
     }
 

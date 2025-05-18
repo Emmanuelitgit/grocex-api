@@ -1,5 +1,8 @@
 package com.grocex_api.config;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.SerializationFeature;
+import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
 import com.grocex_api.authenticationService.UserDetailsService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.context.properties.EnableConfigurationProperties;
@@ -17,6 +20,7 @@ import org.springframework.security.config.annotation.web.configurers.AbstractHt
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
+import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 import org.springframework.web.client.RestTemplate;
 
 import java.util.Properties;
@@ -27,19 +31,29 @@ import java.util.Properties;
 public class SecurityConfig {
 
     private final UserDetailsService userDetailsService;
+    private final CustomFilter customFilter;
 
     @Autowired
-    public SecurityConfig(UserDetailsService userDetailsService) {
+    public SecurityConfig(UserDetailsService userDetailsService, CustomFilter customFilter) {
         this.userDetailsService = userDetailsService;
+        this.customFilter = customFilter;
     }
 
     @Bean
     SecurityFilterChain securityFilterChain(HttpSecurity httpSecurity) throws Exception {
         return httpSecurity.authorizeHttpRequests((auth->{
-            auth.anyRequest().permitAll();
+            auth
+                    .requestMatchers(
+                            "/api/v1/users/authenticate",
+                            "/api/v1/users",
+                            "/swagger-ui/**",
+                            "/v3/api-docs/**"
+                    ).permitAll()
+                    .anyRequest().authenticated();
         }))
                 .cors((AbstractHttpConfigurer::disable))
                 .csrf((AbstractHttpConfigurer::disable))
+                .addFilterBefore(customFilter, UsernamePasswordAuthenticationFilter.class)
                 .build();
     }
 
@@ -79,5 +93,13 @@ public class SecurityConfig {
     @Bean
     AuditorAwareImpl auditorAware(){
         return new AuditorAwareImpl();
+    }
+
+    @Bean
+    public ObjectMapper objectMapper() {
+        ObjectMapper mapper = new ObjectMapper();
+        mapper.registerModule(new JavaTimeModule()); // Register support for java.time.*
+        mapper.disable(SerializationFeature.WRITE_DATES_AS_TIMESTAMPS); // Optional: write ISO 8601 instead of timestamps
+        return mapper;
     }
 }

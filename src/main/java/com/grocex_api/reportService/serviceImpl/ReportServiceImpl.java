@@ -1,6 +1,7 @@
 package com.grocex_api.reportService.serviceImpl;
 
 import com.grocex_api.reportService.dto.ReportData;
+import com.grocex_api.reportService.service.ReportService;
 import lombok.extern.slf4j.Slf4j;
 import net.sf.jasperreports.engine.*;
 import net.sf.jasperreports.engine.data.JRBeanCollectionDataSource;
@@ -14,8 +15,9 @@ import java.util.*;
 
 @Slf4j
 @Service
-public class ReportServiceImpl {
+public class ReportServiceImpl implements ReportService {
 
+    @Override
     public byte[] getReport(){
        try {
            // Create dummy data
