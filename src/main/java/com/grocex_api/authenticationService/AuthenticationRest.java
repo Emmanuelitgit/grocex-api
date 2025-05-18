@@ -68,7 +68,7 @@ public class AuthenticationRest {
         tokenData.put("username", user.getUsername());
         tokenData.put("email", credentials.getEmail());
         tokenData.put("role", user.getRole());
-        tokenData.put("full name", user.getFirstName() + " " + user.getLastName());
+        tokenData.put("full name", AppUtils.getFullName(user.getFirstName(), user.getLastName()));
         tokenData.put("token", token);
         log.info("Authentication success:=========");
         ResponseDTO  response = AppUtils.getResponseDto("authentication successfully", HttpStatus.OK, tokenData);

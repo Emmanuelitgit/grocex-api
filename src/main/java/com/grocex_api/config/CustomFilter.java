@@ -56,7 +56,7 @@ public class CustomFilter extends OncePerRequestFilter {
            Map<String, Object> res = new HashMap<>();
            res.put("message", ex.getMessage());
            res.put("statusCode", HttpStatus.valueOf(401));
-           res.put("date", Time.from(Instant.now()));
+           res.put("date", new Date());
            ObjectMapper mapper = new ObjectMapper();
            String responseData = mapper.writeValueAsString(res);
            response.getWriter().write(responseData);
