@@ -1,5 +1,6 @@
 package com.grocex_api.ordersService.serviceImpl;
 
+import com.grocex_api.ordersService.dto.OrderStatus;
 import com.grocex_api.ordersService.models.DeliveryInfo;
 import com.grocex_api.ordersService.models.Order;
 import com.grocex_api.ordersService.repo.DeliveryInfoRepo;
@@ -8,6 +9,7 @@ import com.grocex_api.ordersService.service.DeliveryInfoService;
 import com.grocex_api.response.ResponseDTO;
 import com.grocex_api.userService.dto.UserDTOProjection;
 import com.grocex_api.utils.AppUtils;
+import jakarta.transaction.Transactional;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -38,6 +40,7 @@ public class DeliveryInfoServiceImpl implements DeliveryInfoService {
      * @auther Emmanuel Yidana
      * @createdAt 4th May 2025
      */
+    @Transactional
     @Override
     public ResponseEntity<ResponseDTO> saveDeliveryInfo(DeliveryInfo deliveryInfo) {
       try{
@@ -54,6 +57,11 @@ public class DeliveryInfoServiceImpl implements DeliveryInfoService {
               ResponseDTO  response = AppUtils.getResponseDto("order record not found", HttpStatus.NOT_FOUND);
               return new ResponseEntity<>(response, HttpStatus.NOT_FOUND);
           }
+
+          // update order status to processing
+          Order existingOrder = orderOptional.get();
+          existingOrder.setStatus(OrderStatus.PROCESSING.toString());
+          orderRepo.save(existingOrder);
 
           DeliveryInfo deliveryInfoRes = deliveryInfoRepo.save(deliveryInfo);
           ResponseDTO  response = AppUtils.getResponseDto("product ordered successfully", HttpStatus.CREATED, deliveryInfoRes);

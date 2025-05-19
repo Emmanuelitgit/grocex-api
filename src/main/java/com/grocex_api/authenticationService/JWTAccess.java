@@ -11,10 +11,7 @@ import org.springframework.stereotype.Component;
 
 import javax.crypto.SecretKey;
 import java.time.Instant;
-import java.util.Base64;
-import java.util.Date;
-import java.util.HashMap;
-import java.util.Map;
+import java.util.*;
 import java.util.concurrent.TimeUnit;
 
 
@@ -32,9 +29,10 @@ public class JWTAccess {
      * @param: username
      * @return token
      */
-    public String generateToken(String username){
+    public String generateToken(String username, UUID userId){
         Map<String, Object> claims = new HashMap<>();
         claims.put("issuer", "www.emma.com");
+        claims.put("userId", userId);
         return Jwts.builder()
                 .setClaims(claims)
                 .signWith(secretKey())
@@ -73,6 +71,11 @@ public class JWTAccess {
     public String extractUsername(String token){
         Claims claims = getClaims(token);
         return claims.getSubject();
+    }
+
+    public Object extractUserId(String token){
+        Claims claims = getClaims(token);
+        return claims.get("userId");
     }
 
     /**

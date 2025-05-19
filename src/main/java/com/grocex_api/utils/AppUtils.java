@@ -26,6 +26,7 @@ import java.time.ZonedDateTime;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Map;
+import java.util.UUID;
 
 import static org.springframework.data.domain.ExampleMatcher.GenericPropertyMatchers.contains;
 import static org.springframework.data.domain.ExampleMatcher.GenericPropertyMatchers.exact;
@@ -104,13 +105,13 @@ public class AppUtils {
      * @auther Emmanuel Yidana
      * @createdAt 16h April 2025
      */
-    public void setAuthorities(String username) {
+    public void setAuthorities(String username, Object userId) {
         String role = getUserRole(username);
         SimpleGrantedAuthority authority = new SimpleGrantedAuthority(role);
         Collection<GrantedAuthority> grantedAuthorities = new ArrayList<>();
         grantedAuthorities.add(authority);
         Authentication authentication = new UsernamePasswordAuthenticationToken(
-                username, null, grantedAuthorities
+                userId, null, grantedAuthorities
         );
         SecurityContextHolder.getContext().setAuthentication(authentication);
     }
@@ -145,6 +146,10 @@ public class AppUtils {
     }
 
     public static String getAuthenticatedUsername(){
+        return SecurityContextHolder.getContext().getAuthentication().getName();
+    }
+
+    public static String getAuthenticatedUserId(){
         return SecurityContextHolder.getContext().getAuthentication().getName();
     }
 

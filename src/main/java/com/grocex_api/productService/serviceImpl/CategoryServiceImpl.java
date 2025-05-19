@@ -34,7 +34,6 @@ public class CategoryServiceImpl implements CategoryService {
                 ResponseDTO  response = AppUtils.getResponseDto("product payload cannot be null", HttpStatus.BAD_REQUEST);
                 return new ResponseEntity<>(response, HttpStatus.BAD_REQUEST);
             }
-            category.setCreatedAt(ZonedDateTime.now());
             Category categoryRes = categoryRepo.save(category);
             ResponseDTO  response = AppUtils.getResponseDto("category record added successfully", HttpStatus.CREATED, categoryRes);
             return new ResponseEntity<>(response, HttpStatus.CREATED);
@@ -94,7 +93,6 @@ public class CategoryServiceImpl implements CategoryService {
         }
         Category existingData = categoryOptional.get();
         existingData.setName(category.getName());
-        existingData.setUpdatedAt(ZonedDateTime.now());
         categoryRepo.save(existingData);
         return null;
     }

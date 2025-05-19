@@ -81,7 +81,6 @@ public class UserServiceImpl implements UserService {
 
            userPayloadDTO.setPassword(passwordEncoder.encode(userPayloadDTO.getPassword()));
            User user = dtoMapper.toUserEntity(userPayloadDTO);
-           user.setCreatedAt(ZonedDateTime.now());
            User userResponse = userRepo.save(user);
 
            // getting the user role name from the role setup db

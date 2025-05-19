@@ -49,18 +49,18 @@ public class ProductServiceImpl implements ProductService {
     @Override
     public ResponseEntity<ResponseDTO> saveProduct(Product product) {
         try{
-            log.info("In save product method:->>>>>>>");
+            log.info("In save product method:->>>>>>>{}", product);
             if (product == null){
                 log.error("payload cannot be null:->>>>>>>{}", HttpStatus.BAD_REQUEST);
                 ResponseDTO  response = AppUtils.getResponseDto("product payload cannot be null", HttpStatus.BAD_REQUEST);
                 return new ResponseEntity<>(response, HttpStatus.BAD_REQUEST);
             }
-            product.setCreatedAt(ZonedDateTime.now());
             Product productRes = productRepo.save(product);
 //            productFileService.saveProductFile(file);
             ResponseDTO  response = AppUtils.getResponseDto("product record added successfully", HttpStatus.CREATED, productRes);
             return new ResponseEntity<>(response, HttpStatus.CREATED);
         } catch (Exception e) {
+            log.info("Exception->>>{}", (Object) e.getStackTrace());
             log.error("Exception Occurred!, statusCode -> {} and Cause -> {} and Message -> {}", 500, e.getCause(), e.getMessage());
             ResponseDTO  response = AppUtils.getResponseDto("Internal server error", HttpStatus.INTERNAL_SERVER_ERROR);
             return new ResponseEntity<>(response, HttpStatus.INTERNAL_SERVER_ERROR);

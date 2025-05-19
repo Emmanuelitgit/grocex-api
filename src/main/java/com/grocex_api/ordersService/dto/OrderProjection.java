@@ -1,6 +1,5 @@
 package com.grocex_api.ordersService.dto;
 
-import com.grocex_api.productService.dto.OrderStatus;
 import org.springframework.stereotype.Repository;
 
 import java.util.UUID;
