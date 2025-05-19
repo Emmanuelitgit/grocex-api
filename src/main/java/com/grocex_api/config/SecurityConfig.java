@@ -49,7 +49,7 @@ public class SecurityConfig {
                             "/swagger-ui/**",
                             "/v3/api-docs/**"
                     ).permitAll()
-                    .anyRequest().authenticated();
+                    .anyRequest().permitAll();
         }))
                 .cors((AbstractHttpConfigurer::disable))
                 .csrf((AbstractHttpConfigurer::disable))
