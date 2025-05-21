@@ -56,4 +56,9 @@ public class OrderRest {
     public ResponseEntity<ResponseDTO> removeOrder(@PathVariable UUID orderId){
         return orderService.removeOrder(orderId);
     }
+
+    @GetMapping("/{userId}/group")
+    public ResponseEntity<ResponseDTO> findGroupOrdersByUserId(@PathVariable UUID userId){
+        return orderService.findGroupOrdersByUserId(userId);
+    }
 }

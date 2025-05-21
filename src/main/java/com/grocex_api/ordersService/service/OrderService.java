@@ -15,4 +15,5 @@ public interface OrderService {
     ResponseEntity<ResponseDTO> findOrderByUserId(UUID userId);
     ResponseEntity<ResponseDTO> updateOrder(OrderPayload order, UUID orderId);
     ResponseEntity<ResponseDTO> removeOrder(UUID orderId);
+    ResponseEntity<ResponseDTO> findGroupOrdersByUserId(UUID userId);
 }

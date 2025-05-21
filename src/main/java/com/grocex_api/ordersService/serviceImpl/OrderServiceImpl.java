@@ -3,14 +3,12 @@ package com.grocex_api.ordersService.serviceImpl;
 import com.grocex_api.exception.NotFoundException;
 import com.grocex_api.notificationService.dto.OrderNotificationPayload;
 import com.grocex_api.notificationService.serviceImpl.OrderNotificationServiceImpl;
-import com.grocex_api.ordersService.dto.OrderPayload;
-import com.grocex_api.ordersService.dto.OrderProjection;
+import com.grocex_api.ordersService.dto.*;
 import com.grocex_api.ordersService.models.Order;
 import com.grocex_api.ordersService.models.ProductOrder;
 import com.grocex_api.ordersService.repo.OrderRepo;
 import com.grocex_api.ordersService.repo.ProductOrderRepo;
 import com.grocex_api.ordersService.service.OrderService;
-import com.grocex_api.ordersService.dto.OrderStatus;
 import com.grocex_api.productService.models.Product;
 import com.grocex_api.productService.repo.ProductRepo;
 import com.grocex_api.response.ResponseDTO;
@@ -162,7 +160,7 @@ public class OrderServiceImpl implements OrderService {
     }
 
     /**
-     * @description This method is used to fetch all orders from the db.
+     * @description This method is used to fetch all individual orders from the db.
      * @return
      * @auther Emmanuel Yidana
      * @createdAt 30h April 2025
@@ -213,43 +211,73 @@ public class OrderServiceImpl implements OrderService {
         }
     }
 
+    /**
+     * @description This method is used to fetch group orders by user id.
+     * @return
+     * @auther Emmanuel Yidana
+     * @createdAt 30h April 2025
+     */
+    public ResponseEntity<ResponseDTO> findGroupOrdersByUserId(UUID userId){
+        List<Order> orders = orderRepo.findByCustomerId(userId);
+        if (orders.isEmpty()){
+            log.error("no order record found:->>>>>>>{}", HttpStatus.NOT_FOUND);
+            ResponseDTO  response = AppUtils.getResponseDto("no order record found", HttpStatus.NOT_FOUND);
+            return new ResponseEntity<>(response, HttpStatus.NOT_FOUND);
+        }
+
+        List<OrderGroupDTO> orderGroupRes = new ArrayList<>();
+        orders.forEach((order)->{
+            ItemsCountProjection itemsCount = orderRepo.getItemsCountByOderId(order.getId());
+            OrderGroupDTO orderGroupDTO = OrderGroupDTO
+                    .builder()
+                    .id(order.getId())
+                    .customerId(order.getCustomerId())
+                    .status(order.getStatus())
+                    .count(itemsCount.getItemsCount())
+                    .build();
+
+            orderGroupRes.add(orderGroupDTO);
+
+        });
+        ResponseDTO  response = AppUtils.getResponseDto("orders records fetched successfully", HttpStatus.OK, orderGroupRes);
+        return new ResponseEntity<>(response, HttpStatus.OK);
+    }
+
+
     @Override
     public ResponseEntity<ResponseDTO> findOrderById(UUID orderId) {
         try{
             log.info("In get order method:->>>>>>");
-            OrderProjection order = orderRepo.getOrderDetailsById(orderId);
-            if (order == null){
+            List<OrderProjection> orders = orderRepo.getOrderDetailsById(orderId);
+            if (orders.isEmpty()){
                 log.error("no order record found:->>>>>>>{}", HttpStatus.NOT_FOUND);
                 ResponseDTO  response = AppUtils.getResponseDto("no order record found", HttpStatus.NOT_FOUND);
                 return new ResponseEntity<>(response, HttpStatus.NOT_FOUND);
             }
 
-            Map<Object, List<Object>> ordersObj = new HashMap<>();
-            List<Object> res = new ArrayList<>();
-            Map<String, Object> data = new HashMap<>();
-            data.put("userId", order.getUserId());
-            data.put("full name", order.getCustomer());
-            data.put("username", order.getUsername());
-            data.put("email", order.getEmail());
+            List<Object> orderRes = new ArrayList<>();
+            Map<String, Object> user = new HashMap<>();
+            Map<Object, Object> ordersObj = new HashMap<>();
+            orders.forEach((order)->{
+                user.put("userId", order.getUserId());
+                user.put("full name", order.getCustomer());
+                user.put("username", order.getUsername());
+                user.put("email", order.getEmail());
 
-            if (!ordersObj.containsKey(order.getCustomer())){
-                ordersObj.put(order.getCustomer(), new ArrayList<>());
-            }
+                Map<String, Object> orderItems  = new HashMap<>();
+                orderItems.put("orderId", order.getOrderId());
+                orderItems.put("product", order.getProduct());
+                orderItems.put("unitPrice", order.getUnitPrice());
+                orderItems.put("quantity", order.getQuantity());
+                orderItems.put("totalPrice", order.getTotalPrice());
 
-            Map<String, Object> orderItems  = new HashMap<>();
-            orderItems.put("orderId", order.getOrderId());
-            orderItems.put("product", order.getProduct());
-            orderItems.put("unitPrice", order.getUnitPrice());
-            orderItems.put("quantity", order.getQuantity());
-            orderItems.put("totalPrice", order.getTotalPrice());
+                orderRes.add(orderItems);
+            });
 
-            ordersObj.get(order.getCustomer()).add(orderItems);
+            ordersObj.put("orders", orderRes);
+            ordersObj.put("user", user);
 
-            data.put("orders", ordersObj.get(order.getCustomer()));
-            res.add(data);
-            // removing duplicates
-            Set<Object> setResponse = new HashSet<>(res);
-            ResponseDTO  response = AppUtils.getResponseDto("order records fetched successfully", HttpStatus.OK, setResponse);
+            ResponseDTO  response = AppUtils.getResponseDto("order records fetched successfully", HttpStatus.OK, ordersObj);
             return new ResponseEntity<>(response, HttpStatus.OK);
         } catch (Exception e) {
             log.error("Exception Occurred!, statusCode -> {} and Cause -> {} and Message -> {}", 500, e.getCause(), e.getMessage());

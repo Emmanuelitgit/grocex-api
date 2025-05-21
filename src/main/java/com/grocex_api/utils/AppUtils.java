@@ -1,9 +1,11 @@
 package com.grocex_api.utils;
 
+import com.grocex_api.exception.NotFoundException;
 import com.grocex_api.productService.dto.PaginationPayload;
 import com.grocex_api.response.ResponseDTO;
 import com.grocex_api.userService.dto.UserDTOProjection;
 import com.grocex_api.userService.models.RoleSetup;
+import com.grocex_api.userService.models.User;
 import com.grocex_api.userService.repo.RoleSetupRepo;
 import com.grocex_api.userService.repo.UserRepo;
 import com.grocex_api.userService.repo.UserRoleRepo;
@@ -145,10 +147,26 @@ public class AppUtils {
         return PageRequest.of(paginationPayload.getPage()-1, paginationPayload.getSize());
     }
 
-    public static String getAuthenticatedUsername(){
-        return SecurityContextHolder.getContext().getAuthentication().getName();
+    /**
+     * This method is used to get authenticated username.
+     * @return username string
+     * @auther Emmanuel Yidana
+     * @createdAt 19h May 2025
+     */
+    public String getAuthenticatedUsername(){
+        String userId = SecurityContextHolder.getContext().getAuthentication().getName();
+
+        User user = userRepo.findById(UUID.fromString(userId))
+                .orElseThrow(()-> new NotFoundException("user record not found"));
+        return user.getUsername();
     }
 
+    /**
+     * This method is used to get authenticated user id.
+     * @return UUID string
+     * @auther Emmanuel Yidana
+     * @createdAt 19h May 2025
+     */
     public static String getAuthenticatedUserId(){
         return SecurityContextHolder.getContext().getAuthentication().getName();
     }
