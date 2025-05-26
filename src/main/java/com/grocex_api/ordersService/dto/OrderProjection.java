@@ -2,6 +2,7 @@ package com.grocex_api.ordersService.dto;
 
 import org.springframework.stereotype.Repository;
 
+import java.time.LocalDateTime;
 import java.util.UUID;
 
 @Repository
@@ -17,4 +18,7 @@ public interface OrderProjection{
     Integer getTotalPrice();
     String getStatus();
     Integer getTotals();
+    String getVendor();
+    String getProductId();
+    LocalDateTime getCreatedAt();
 }

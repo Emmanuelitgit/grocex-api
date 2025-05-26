@@ -1,5 +1,6 @@
 package com.grocex_api.ordersService.serviceImpl;
 
+import com.grocex_api.config.AppProperties;
 import com.grocex_api.exception.NotFoundException;
 import com.grocex_api.notificationService.dto.OrderNotificationPayload;
 import com.grocex_api.notificationService.serviceImpl.OrderNotificationServiceImpl;
@@ -22,6 +23,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 
+import java.time.LocalDateTime;
 import java.util.*;
 
 @Service
@@ -33,14 +35,16 @@ public class OrderServiceImpl implements OrderService {
     private final ProductOrderRepo productOrderRepo;
     private final OrderNotificationServiceImpl orderNotificationService;
     private final UserRepo userRepo;
+    private final AppProperties appProperties;
 
     @Autowired
-    public OrderServiceImpl(OrderRepo orderRepo, ProductRepo productRepo, ProductOrderRepo productOrderRepo, OrderNotificationServiceImpl orderNotificationService, UserRepo userRepo) {
+    public OrderServiceImpl(OrderRepo orderRepo, ProductRepo productRepo, ProductOrderRepo productOrderRepo, OrderNotificationServiceImpl orderNotificationService, UserRepo userRepo, AppProperties appProperties) {
         this.orderRepo = orderRepo;
         this.productRepo = productRepo;
         this.productOrderRepo = productOrderRepo;
         this.orderNotificationService = orderNotificationService;
         this.userRepo = userRepo;
+        this.appProperties = appProperties;
     }
 
     /**
@@ -297,35 +301,23 @@ public class OrderServiceImpl implements OrderService {
                 return new ResponseEntity<>(response, HttpStatus.NOT_FOUND);
             }
 
-            Map<Object, List<Object>> ordersObj = new HashMap<>();
             List<Object> res = new ArrayList<>();
-
             for (OrderProjection order : orders){
-                Map<String, Object> data = new HashMap<>();
-                data.put("userId", order.getUserId());
-                data.put("full name", order.getCustomer());
-                data.put("username", order.getUsername());
-                data.put("email", order.getEmail());
-
-                if (!ordersObj.containsKey(order.getCustomer())){
-                    ordersObj.put(order.getCustomer(), new ArrayList<>());
-                }
-
                 Map<String, Object> orderItems  = new HashMap<>();
                 orderItems.put("orderId", order.getOrderId());
                 orderItems.put("product", order.getProduct());
                 orderItems.put("unitPrice", order.getUnitPrice());
                 orderItems.put("quantity", order.getQuantity());
                 orderItems.put("totalPrice", order.getTotalPrice());
+                orderItems.put("status", order.getStatus());
+                orderItems.put("vendor", order.getVendor());
+                orderItems.put("createdAt", order.getCreatedAt() == null? LocalDateTime.now():order.getCreatedAt());
+                orderItems.put("imageUrl", appProperties.getBaseUrl()+"/image/"+order.getProductId());
 
-                ordersObj.get(order.getCustomer()).add(orderItems);
-
-                data.put("orders", ordersObj.get(order.getCustomer()));
-                res.add(data);
+                res.add(orderItems);
             }
-            // removing duplicates
-            Set<Object> setResponse = new HashSet<>(res);
-            ResponseDTO  response = AppUtils.getResponseDto("order records fetched successfully", HttpStatus.OK, setResponse);
+
+            ResponseDTO  response = AppUtils.getResponseDto("order records fetched successfully", HttpStatus.OK, res);
             return new ResponseEntity<>(response, HttpStatus.OK);
         } catch (Exception e) {
             log.error("Exception Occurred!, statusCode -> {} and Cause -> {} and Message -> {}", 500, e.getCause(), e.getMessage());
