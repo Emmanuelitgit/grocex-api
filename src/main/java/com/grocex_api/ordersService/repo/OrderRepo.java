@@ -13,15 +13,17 @@ import java.util.UUID;
 @Repository
 public interface OrderRepo extends JpaRepository<Order, UUID> {
 
-    @Query(value = "SELECT BIN_TO_UUID(o.id) AS orderId, o.status, p.name AS product, po.unit_price, po.quantity, po.total_price, o.total_price AS totals, BIN_TO_UUID(u.id) AS userId, CONCAT(u.first_name, ' ', u.last_name) AS customer, u.username, u.email FROM product_order_tb po " +
+    @Query(value = "SELECT BIN_TO_UUID(o.id) AS orderId, o.status, p.name AS product, BIN_TO_UUID(p.id) AS productId, v.name AS vendor, po.unit_price, po.created_at, po.quantity, po.total_price, o.total_price AS totals, BIN_TO_UUID(u.id) AS userId, CONCAT(u.first_name, ' ', u.last_name) AS customer, u.username, u.email FROM product_order_tb po " +
             "JOIN product p ON po.product_id=p.id " +
             "JOIN order_tb o ON o.id=po.order_id " +
+            "JOIN vendor_tb v ON v.user_id=p.product_owner_id " +
             "JOIN user_tb u ON u.id=o.customer_id ", nativeQuery = true)
     List<OrderProjection> getOrderDetails();
 
-    @Query(value = "SELECT BIN_TO_UUID(o.id) AS orderId, o.status, p.name AS product, po.unit_price, po.quantity, po.total_price, o.total_price AS totals, BIN_TO_UUID(u.id) AS userId, CONCAT(u.first_name, ' ', u.last_name) AS customer, u.username, u.email FROM product_order_tb po " +
+    @Query(value = "SELECT BIN_TO_UUID(o.id) AS orderId, o.status, p.name AS product, BIN_TO_UUID(p.id) AS productId, v.name AS vendor, po.unit_price, po.created_at, po.quantity, po.total_price, o.total_price AS totals, BIN_TO_UUID(u.id) AS userId, CONCAT(u.first_name, ' ', u.last_name) AS customer, u.username, u.email FROM product_order_tb po " +
             "JOIN product p ON po.product_id=p.id " +
             "JOIN order_tb o ON o.id=po.order_id " +
+            "JOIN vendor_tb v ON v.user_id=p.product_owner_id " +
             "JOIN user_tb u ON u.id=o.customer_id WHERE o.id=? ", nativeQuery = true)
     List<OrderProjection> getOrderDetailsById(UUID orderId);
 

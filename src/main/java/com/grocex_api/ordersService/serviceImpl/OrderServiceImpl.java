@@ -192,15 +192,20 @@ public class OrderServiceImpl implements OrderService {
                     ordersObj.put(order.getCustomer(), new ArrayList<>());
                 }
 
-                Map<String, Object> orderItems  = new HashMap<>();
-                orderItems.put("orderId", order.getOrderId());
-                orderItems.put("product", order.getProduct());
-                orderItems.put("unitPrice", order.getUnitPrice());
-                orderItems.put("quantity", order.getQuantity());
-                orderItems.put("totalPrice", order.getTotalPrice());
-                orderItems.put("status", order.getStatus());
+                OrderResponse orderResponse = OrderResponse
+                        .builder()
+                        .orderId(order.getOrderId())
+                        .product(order.getProduct())
+                        .unitPrice(order.getUnitPrice())
+                        .totalPrice(order.getTotalPrice())
+                        .quantity(order.getQuantity())
+                        .vendor(order.getVendor())
+                        .status(order.getStatus())
+                        .createdAt(order.getCreatedAt())
+                        .imageUrl(appProperties.getBaseUrl()+"/image/"+order.getProductId())
+                        .build();
 
-                ordersObj.get(order.getCustomer()).add(orderItems);
+                ordersObj.get(order.getCustomer()).add(orderResponse);
                 data.put("orders", ordersObj.get(order.getCustomer()));
                 res.add(data);
             }
@@ -260,28 +265,24 @@ public class OrderServiceImpl implements OrderService {
             }
 
             List<Object> orderRes = new ArrayList<>();
-            Map<String, Object> user = new HashMap<>();
-            Map<Object, Object> ordersObj = new HashMap<>();
             orders.forEach((order)->{
-                user.put("userId", order.getUserId());
-                user.put("full name", order.getCustomer());
-                user.put("username", order.getUsername());
-                user.put("email", order.getEmail());
+                OrderResponse orderResponse = OrderResponse
+                        .builder()
+                        .orderId(order.getOrderId())
+                        .product(order.getProduct())
+                        .unitPrice(order.getUnitPrice())
+                        .totalPrice(order.getTotalPrice())
+                        .quantity(order.getQuantity())
+                        .vendor(order.getVendor())
+                        .status(order.getStatus())
+                        .createdAt(order.getCreatedAt())
+                        .imageUrl(appProperties.getBaseUrl()+"/image/"+order.getProductId())
+                        .build();
 
-                Map<String, Object> orderItems  = new HashMap<>();
-                orderItems.put("orderId", order.getOrderId());
-                orderItems.put("product", order.getProduct());
-                orderItems.put("unitPrice", order.getUnitPrice());
-                orderItems.put("quantity", order.getQuantity());
-                orderItems.put("totalPrice", order.getTotalPrice());
-
-                orderRes.add(orderItems);
+                orderRes.add(orderResponse);
             });
 
-            ordersObj.put("orders", orderRes);
-            ordersObj.put("user", user);
-
-            ResponseDTO  response = AppUtils.getResponseDto("order records fetched successfully", HttpStatus.OK, ordersObj);
+            ResponseDTO  response = AppUtils.getResponseDto("order records fetched successfully", HttpStatus.OK, orderRes);
             return new ResponseEntity<>(response, HttpStatus.OK);
         } catch (Exception e) {
             log.error("Exception Occurred!, statusCode -> {} and Cause -> {} and Message -> {}", 500, e.getCause(), e.getMessage());
@@ -303,18 +304,21 @@ public class OrderServiceImpl implements OrderService {
 
             List<Object> res = new ArrayList<>();
             for (OrderProjection order : orders){
-                Map<String, Object> orderItems  = new HashMap<>();
-                orderItems.put("orderId", order.getOrderId());
-                orderItems.put("product", order.getProduct());
-                orderItems.put("unitPrice", order.getUnitPrice());
-                orderItems.put("quantity", order.getQuantity());
-                orderItems.put("totalPrice", order.getTotalPrice());
-                orderItems.put("status", order.getStatus());
-                orderItems.put("vendor", order.getVendor());
-                orderItems.put("createdAt", order.getCreatedAt() == null? LocalDateTime.now():order.getCreatedAt());
-                orderItems.put("imageUrl", appProperties.getBaseUrl()+"/image/"+order.getProductId());
 
-                res.add(orderItems);
+                OrderResponse orderResponse = OrderResponse
+                        .builder()
+                        .orderId(order.getOrderId())
+                        .product(order.getProduct())
+                        .unitPrice(order.getUnitPrice())
+                        .totalPrice(order.getTotalPrice())
+                        .quantity(order.getQuantity())
+                        .vendor(order.getVendor())
+                        .status(order.getStatus())
+                        .createdAt(order.getCreatedAt())
+                        .imageUrl(appProperties.getBaseUrl()+"/image/"+order.getProductId())
+                        .build();
+
+                res.add(orderResponse);
             }
 
             ResponseDTO  response = AppUtils.getResponseDto("order records fetched successfully", HttpStatus.OK, res);
