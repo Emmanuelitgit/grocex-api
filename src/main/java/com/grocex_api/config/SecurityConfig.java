@@ -32,16 +32,21 @@ public class SecurityConfig {
 
     private final UserDetailsService userDetailsService;
     private final CustomFilter customFilter;
+    private final CorsConfiguration corsConfiguration;
 
     @Autowired
-    public SecurityConfig(UserDetailsService userDetailsService, CustomFilter customFilter) {
+    public SecurityConfig(UserDetailsService userDetailsService, CustomFilter customFilter, CorsConfiguration corsConfiguration) {
         this.userDetailsService = userDetailsService;
         this.customFilter = customFilter;
+        this.corsConfiguration = corsConfiguration;
     }
 
     @Bean
     SecurityFilterChain securityFilterChain(HttpSecurity httpSecurity) throws Exception {
-        return httpSecurity.authorizeHttpRequests((auth->{
+        return httpSecurity
+                .cors(c -> c.configurationSource(corsConfiguration))
+                .csrf((AbstractHttpConfigurer::disable))
+                .authorizeHttpRequests((auth->{
             auth
                     .requestMatchers(
                             "/api/v1/users/authenticate",
@@ -51,8 +56,6 @@ public class SecurityConfig {
                     ).permitAll()
                     .anyRequest().permitAll();
         }))
-                .cors((AbstractHttpConfigurer::disable))
-                .csrf((AbstractHttpConfigurer::disable))
                 .addFilterBefore(customFilter, UsernamePasswordAuthenticationFilter.class)
                 .build();
     }
