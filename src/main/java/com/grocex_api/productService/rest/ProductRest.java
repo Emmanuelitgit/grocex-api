@@ -9,6 +9,7 @@ import com.grocex_api.response.ResponseDTO;
 import jakarta.validation.Valid;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.core.io.Resource;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
@@ -16,6 +17,7 @@ import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.io.IOException;
+import java.net.MalformedURLException;
 import java.util.UUID;
 
 @Slf4j
@@ -53,15 +55,7 @@ public class ProductRest {
 
     @PostMapping(consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
     public ResponseEntity<ResponseDTO> saveProduct(@Valid @ModelAttribute ProductRequest productRequest) throws IOException {
-        Product data = Product.builder()
-                .image(ImageUtil.compressImage(productRequest.getFile().getBytes()))
-                .name(productRequest.getName())
-                .unitPrice(productRequest.getPrice())
-                .quantity(productRequest.getQuantity())
-                .productOwnerId(productRequest.getOwnerId())
-                .categoryId(productRequest.getCategoryId())
-                .build();
-        return productService.saveProduct(data);
+        return productService.saveProduct(productRequest);
     }
 
     @GetMapping("/{productId}")
@@ -108,10 +102,16 @@ public class ProductRest {
     }
 
     @GetMapping("/image/{id}")
-    public ResponseEntity<?>  getImageByName(@PathVariable UUID id){
-        byte[] image = productService.getImage(id);
+    public ResponseEntity<?>  getImageByName(@PathVariable UUID id) throws MalformedURLException {
+        Resource image = productService.getImage(id);
         return ResponseEntity.status(HttpStatus.OK)
                 .contentType(MediaType.valueOf("image/png"))
                 .body(image);
+    }
+
+    @GetMapping("/redis")
+    public ResponseEntity<?> testRedis(){
+        String res = productService.testRedis("Emmanuel Williams Yidana");
+        return ResponseEntity.status(HttpStatus.OK).body(res);
     }
 }

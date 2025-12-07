@@ -29,10 +29,11 @@ public class JWTAccess {
      * @param: username
      * @return token
      */
-    public String generateToken(String username, UUID userId){
+    public String generateToken(String username, UUID userId, String role){
         Map<String, Object> claims = new HashMap<>();
         claims.put("issuer", "www.emma.com");
         claims.put("userId", userId);
+        claims.put("role", role);
         return Jwts.builder()
                 .setClaims(claims)
                 .signWith(secretKey())
@@ -76,6 +77,11 @@ public class JWTAccess {
     public Object extractUserId(String token){
         Claims claims = getClaims(token);
         return claims.get("userId");
+    }
+
+    public Object extractRole(String token){
+        Claims claims = getClaims(token);
+        return claims.get("role");
     }
 
     /**

@@ -63,7 +63,7 @@ public class AuthenticationRest {
         }
         UserDTOProjection user = userRepo.getUsersDetailsByUserEmail(credentials.getEmail());
 
-        String token = jwtAccess.generateToken(credentials.getEmail(), user.getId());
+        String token = jwtAccess.generateToken(credentials.getEmail(), user.getId(), user.getRole());
         Map<String, String> tokenData = new HashMap<>();
         tokenData.put("username", user.getUsername());
         tokenData.put("email", credentials.getEmail());

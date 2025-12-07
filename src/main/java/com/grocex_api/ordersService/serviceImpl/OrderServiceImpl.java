@@ -93,7 +93,7 @@ public class OrderServiceImpl implements OrderService {
             for (OrderPayload order: orders){
                Optional<Product> productOptional = productRepo.findById(order.getProductId());
                if (productOptional.isEmpty()){
-                   log.error("no product record found:->>>>>>>{}", HttpStatus.NOT_FOUND);
+                   log.error("No product record found:->>>>>>>{}", HttpStatus.NOT_FOUND);
                    ResponseDTO  response = AppUtils.getResponseDto("no product record found", HttpStatus.NOT_FOUND);
                    return new ResponseEntity<>(response, HttpStatus.NOT_FOUND);
                }
@@ -101,8 +101,8 @@ public class OrderServiceImpl implements OrderService {
                // checking for product availability
                Product product = productOptional.get();
                if (product.getQuantity()==0){
-                   log.error("\"product out of stock:->>\" + \" \" + product.getName(){}", HttpStatus.BAD_REQUEST);
-                   ResponseDTO  response = AppUtils.getResponseDto("order quantity exceeds product availability for:->>" + " " + product.getName(), HttpStatus.BAD_REQUEST);
+                   log.error("\"Product out of stock:->>\" + \" \" + product.getName(){}", HttpStatus.BAD_REQUEST);
+                   ResponseDTO  response = AppUtils.getResponseDto("Order quantity exceeds product availability for " + " " + product.getName(), HttpStatus.BAD_REQUEST);
                    return new ResponseEntity<>(response, HttpStatus.BAD_REQUEST);
                }
                // checking if the order quantity exceed the available quantity of product
@@ -151,6 +151,7 @@ public class OrderServiceImpl implements OrderService {
 
             ResponseDTO  response = AppUtils.getResponseDto("product ordered successfully", HttpStatus.CREATED, res);
             return new ResponseEntity<>(response, HttpStatus.OK);
+
         }  catch (Exception e) {
             log.error("Exception Occurred!, statusCode -> {} and Cause -> {} and Message -> {}", 500, e.getCause(), e.getMessage());
             ResponseDTO  response = AppUtils.getResponseDto("Internal server error", HttpStatus.INTERNAL_SERVER_ERROR);
@@ -199,7 +200,7 @@ public class OrderServiceImpl implements OrderService {
                         .unitPrice(order.getUnitPrice())
                         .totalPrice(order.getTotalPrice())
                         .quantity(order.getQuantity())
-                        .vendor(order.getVendor())
+//                        .vendor(order.getVendor())
                         .status(order.getStatus())
                         .createdAt(order.getCreatedAt())
                         .imageUrl(appProperties.getBaseUrl()+"/image/"+order.getProductId())
@@ -213,6 +214,7 @@ public class OrderServiceImpl implements OrderService {
             Set<Object> setResponse = new HashSet<>(res);
             ResponseDTO  response = AppUtils.getResponseDto("orders records fetched successfully", HttpStatus.OK, setResponse);
             return new ResponseEntity<>(response, HttpStatus.OK);
+
         } catch (Exception e) {
             log.error("Exception Occurred!, statusCode -> {} and Cause -> {} and Message -> {}", 500, e.getCause(), e.getMessage());
             ResponseDTO  response = AppUtils.getResponseDto(e.getMessage(), HttpStatus.INTERNAL_SERVER_ERROR);

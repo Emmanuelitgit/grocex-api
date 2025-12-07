@@ -33,6 +33,7 @@ public class Product extends AuditorData {
     private UUID productOwnerId;
     @Lob
     @Column(columnDefinition = "LONGBLOB")
-    @NotNull(message = "product image cannot be null")
+//    @NotNull(message = "product image cannot be null")
     private byte[] image;
+    private String fileName;
 }

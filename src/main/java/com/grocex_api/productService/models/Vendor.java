@@ -1,14 +1,12 @@
 package com.grocex_api.productService.models;
 
 import com.grocex_api.config.AuditorData;
-import com.grocex_api.productService.dto.VendorStatus;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
-import java.time.ZonedDateTime;
 import java.util.UUID;
 
 @Entity
@@ -23,5 +21,5 @@ public class Vendor extends AuditorData {
     private UUID id;
     private String name;
     private UUID userId;
-    private VendorStatus status;
+    private String status;
 }

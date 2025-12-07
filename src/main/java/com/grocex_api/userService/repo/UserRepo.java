@@ -14,7 +14,9 @@ import java.util.UUID;
 @Repository
 public interface UserRepo extends JpaRepository<User, UUID> {
 
-    @Query(value = "SELECT BIN_TO_UUID(u.id) AS id, u.first_name, u.vendor,u.last_name, u.email, u.phone, u.username, rs.name AS role FROM user_tb u " +
+    @Query(value = "SELECT BIN_TO_UUID(u.id) AS id, u.first_name," +
+            "u.last_name, u.email, u.phone, u.username, " +
+            "rs.name AS role FROM user_tb u " +
             "JOIN user_role_tb ur ON u.id = ur.user_id " +
             "JOIN role_setup_tb rs ON ur.role_id=rs.id ", nativeQuery = true)
     List<UserDTOProjection> getUsersDetails();
@@ -28,7 +30,9 @@ public interface UserRepo extends JpaRepository<User, UUID> {
     UserDTOProjection getUsersDetailsByUserId(UUID userId);
 
 
-    @Query(value = "SELECT BIN_TO_UUID(u.id) AS id, u.first_name, u.vendor, u.last_name, u.email, u.phone, u.username, rs.name AS role " +
+    @Query(value = "SELECT BIN_TO_UUID(u.id) AS id, u.first_name," +
+            "u.last_name, u.email, u.phone, u.username, " +
+            "rs.name AS role " +
             "FROM user_tb u " +
             "JOIN user_role_tb ur ON u.id = ur.user_id " +
             "JOIN role_setup_tb rs ON ur.role_id = rs.id " +

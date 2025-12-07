@@ -32,6 +32,6 @@ public class ProductRequest {
     private UUID categoryId;
     @NotNull(message = "product owner id cannot be null")
     private UUID ownerId;
-    @NotNull(message = "product image cannot be null")
+//    @NotNull(message = "product image cannot be null")
     private MultipartFile file;
 }

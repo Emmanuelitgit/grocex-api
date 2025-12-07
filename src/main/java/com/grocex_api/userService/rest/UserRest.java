@@ -3,6 +3,7 @@ package com.grocex_api.userService.rest;
 import com.grocex_api.response.ResponseDTO;
 import com.grocex_api.userService.dto.UserDTO;
 import com.grocex_api.userService.dto.UserPayloadDTO;
+import com.grocex_api.userService.dto.UserUpdatePayloadDTO;
 import com.grocex_api.userService.models.User;
 import com.grocex_api.userService.serviceImpl.UserServiceImpl;
 import jakarta.validation.Valid;
@@ -39,7 +40,7 @@ public class UserRest {
     }
 
     @PutMapping("/{userId}")
-    public ResponseEntity<ResponseDTO> updateUser(@RequestBody @Valid UserPayloadDTO user, @PathVariable UUID userId){
+    public ResponseEntity<ResponseDTO> updateUser(@RequestBody @Valid UserUpdatePayloadDTO user, @PathVariable UUID userId){
         return userService.updateUser(user, userId);
     }
 

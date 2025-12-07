@@ -4,7 +4,6 @@ import com.grocex_api.exception.NotFoundException;
 import com.grocex_api.productService.dto.PaginationPayload;
 import com.grocex_api.response.ResponseDTO;
 import com.grocex_api.userService.dto.UserDTOProjection;
-import com.grocex_api.userService.models.RoleSetup;
 import com.grocex_api.userService.models.User;
 import com.grocex_api.userService.repo.RoleSetupRepo;
 import com.grocex_api.userService.repo.UserRepo;
@@ -13,7 +12,6 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.cache.annotation.Cacheable;
 import org.springframework.data.domain.ExampleMatcher;
-import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
@@ -102,14 +100,15 @@ public class AppUtils {
 
     /**
      * This method is used to set authenticated user authorities.
-     * @param username
+     * @param role
+     * @param userId
      * @return
      * @auther Emmanuel Yidana
      * @createdAt 16h April 2025
      */
-    public void setAuthorities(String username, Object userId) {
-        String role = getUserRole(username);
-        SimpleGrantedAuthority authority = new SimpleGrantedAuthority(role);
+    public void setAuthorities(Object role, Object userId) {
+        String roleToAdd = (String) role;
+        SimpleGrantedAuthority authority = new SimpleGrantedAuthority(roleToAdd.toUpperCase());
         Collection<GrantedAuthority> grantedAuthorities = new ArrayList<>();
         grantedAuthorities.add(authority);
         Authentication authentication = new UsernamePasswordAuthenticationToken(
@@ -165,10 +164,27 @@ public class AppUtils {
      * This method is used to get authenticated user id.
      * @return UUID string
      * @auther Emmanuel Yidana
-     * @createdAt 19h May 2025
+     * @createdAt 4th May 2025
      */
     public static String getAuthenticatedUserId(){
         return SecurityContextHolder.getContext().getAuthentication().getName();
+    }
+
+    /**
+     * This method is used to get authenticated user role.
+     * @return UUID string
+     * @auther Emmanuel Yidana
+     * @createdAt 4th December 2025
+     */
+    public static String getAuthenticatedUserRole(){
+        return SecurityContextHolder
+                .getContext()
+                .getAuthentication()
+                .getAuthorities()
+                .stream()
+                .findFirst()
+                .get()
+                .toString();
     }
 
     public static final ExampleMatcher SEARCH_CONDITION_MATCH_ALL = ExampleMatcher.matchingAll()

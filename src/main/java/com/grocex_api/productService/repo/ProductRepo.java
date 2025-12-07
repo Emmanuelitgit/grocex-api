@@ -15,17 +15,30 @@ import java.util.UUID;
 @Repository
 public interface ProductRepo extends JpaRepository<Product, UUID> {
 
-    @Query(value = "SELECT BIN_TO_UUID(p.id) AS id, p.name AS product, p.unit_price, p.quantity, u.vendor, ct.name As category FROM product p" +
+    @Query(value = "SELECT BIN_TO_UUID(p.id) AS id, " +
+            "p.name AS product, p.unit_price, p.quantity, " +
+            "ct.name As category,v.name AS vendor " +
+            " FROM product p " +
             " JOIN user_tb u ON u.id=p.product_owner_id " +
             "JOIN category_tb ct on p.category_id = ct.id " +
-            " WHERE (:category IS NULL OR ct.name=:category) AND (:product IS NULL OR p.name= :product) ", nativeQuery = true)
-    List<ProductProjection> getProductAndCategory(@Param("category") String category, @Param(("product")) String product);
+            "JOIN vendor_tb v ON v.user_id=p.product_owner_id " +
+            " WHERE (:category IS NULL OR ct.name=:category) " +
+            "AND (:product IS NULL OR p.name= :product) ", nativeQuery = true)
+    List<ProductProjection> getProductAndCategory(@Param("category") String category,
+                                                  @Param(("product")) String product);
 
-    @Query(value = "SELECT BIN_TO_UUID(p.id) AS id, p.name AS product, p.unit_price, p.quantity, u.vendor, ct.name As category FROM product p" +
+    @Query(value = "SELECT BIN_TO_UUID(p.id) AS id, " +
+            "p.name AS product, p.unit_price, p.quantity, " +
+            "ct.name,v.name AS vendor " +
+            " As category FROM product p " +
             " JOIN user_tb u ON u.id=p.product_owner_id " +
             "JOIN category_tb ct on p.category_id = ct.id " +
-            " WHERE (:category IS NULL OR ct.name=:category) AND (:product IS NULL OR p.name= :product) ", nativeQuery = true)
-    Page<ProductProjection> getProductAndCategory(@Param("category") String category, @Param(("product")) String product, Pageable pageable);
+            "JOIN vendor_tb v ON v.user_id=p.product_owner_id " +
+            " WHERE (:category IS NULL OR ct.name=:category) " +
+            "AND (:product IS NULL OR p.name= :product) ", nativeQuery = true)
+    Page<ProductProjection> getProductAndCategory(@Param("category") String category,
+                                                  @Param(("product")) String product,
+                                                  Pageable pageable);
 
     @Query(value = "SELECT BIN_TO_UUID(p.id) AS id, p.name AS product, p.unit_price, p.quantity, u.vendor, ct.name As category FROM product p" +
             " JOIN user_tb u ON u.id=p.product_owner_id " +

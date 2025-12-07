@@ -45,9 +45,10 @@ public class CustomFilter extends OncePerRequestFilter {
            if (auth!=null){
                String token = auth.substring(7);
                jwtAccess.isTokenValid(token);
-               String username = jwtAccess.extractUsername(token);
+//               String username = jwtAccess.extractUsername(token);
+               Object role = jwtAccess.extractRole(token);
                Object userId = jwtAccess.extractUserId(token);
-               appUtils.setAuthorities(username, userId);
+               appUtils.setAuthorities(role, userId);
            }
            filterChain.doFilter(request, response);
 

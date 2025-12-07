@@ -17,6 +17,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 import java.util.List;
+import java.util.Optional;
 
 @Slf4j
 @Service
@@ -85,12 +86,14 @@ public class VendorServiceImpl implements VendorService {
     @Override
     public void updateVendor(Vendor vendor) {
         // checking if vendor exist by id. if not throw exception
-        Vendor existingData = vendorRepo.findById(vendor.getId())
-                .orElseThrow(()-> new NotFoundException("vendor record not found"));
-
-        // populating vendor update details
-        existingData.setName(vendor.getName() !=null? vendor.getName() : existingData.getName());
-        existingData.setStatus(vendor.getStatus() !=null? vendor.getStatus() :existingData.getStatus());
+//        Optional<Vendor> vendorOptional = vendorRepo.findByName(vendor.getName());
+//        if (vendorOptional.isEmpty()){
+//            log.error("vendor not found");
+//            throw new NotFoundException("vendor not found");
+//        }
+//        Vendor existingData = vendorOptional.get();
+//        existingData.setName(vendor.getName() !=null? vendor.getName() : existingData.getName());
+//        existingData.setStatus(vendor.getStatus() !=null? vendor.getStatus() :existingData.getStatus());
         
         // saving vendor
         vendorRepo.save(vendor);

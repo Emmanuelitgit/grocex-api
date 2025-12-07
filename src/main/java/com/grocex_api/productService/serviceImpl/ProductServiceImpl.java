@@ -5,25 +5,37 @@ import com.grocex_api.exception.NotFoundException;
 import com.grocex_api.imageUtility.ImageUtil;
 import com.grocex_api.productService.dto.PaginationPayload;
 import com.grocex_api.productService.dto.ProductProjection;
+import com.grocex_api.productService.dto.ProductRequest;
 import com.grocex_api.productService.dto.ProductResponse;
 import com.grocex_api.productService.models.Product;
+import com.grocex_api.productService.models.Vendor;
 import com.grocex_api.productService.repo.ProductRepo;
+import com.grocex_api.productService.repo.VendorRepo;
 import com.grocex_api.productService.service.ProductService;
 import com.grocex_api.response.ResponseDTO;
+import com.grocex_api.utils.AppConstants;
 import com.grocex_api.utils.AppUtils;
 import jakarta.transaction.Transactional;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.data.domain.Example;
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.cache.annotation.Cacheable;
+import org.springframework.core.io.Resource;
+import org.springframework.core.io.ResourceLoader;
+import org.springframework.core.io.UrlResource;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.stereotype.Service;
-import org.springframework.web.multipart.MultipartFile;
 
-import java.time.ZonedDateTime;
+import java.net.MalformedURLException;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.util.*;
+
 
 @Slf4j
 @Service
@@ -31,34 +43,82 @@ public class ProductServiceImpl implements ProductService {
 
     private final ProductRepo productRepo;
     private final AppProperties appProperties;
+    private final VendorRepo vendorRepo;
+    private final ResourceLoader resourceLoader;
+    @Value("${grocex.uploads.path}")
+    private String uploadDirectory;
 
     @Autowired
-    public ProductServiceImpl(ProductRepo productRepo, AppProperties appProperties) {
+    public ProductServiceImpl(ProductRepo productRepo, AppProperties appProperties, VendorRepo vendorRepo, ResourceLoader resourceLoader) {
         this.productRepo = productRepo;
         this.appProperties = appProperties;
+        this.vendorRepo = vendorRepo;
+        this.resourceLoader = resourceLoader;
     }
 
     /**
      * @description This method is used to save product to the db
-     * @param product
+     * @param productRequest
      * @return
      * @auther Emmanuel Yidana
      * @createdAt 30h April 2025
      */
     @Transactional
     @Override
-    public ResponseEntity<ResponseDTO> saveProduct(Product product) {
+    @PreAuthorize("hasAnyAuthority('ADMIN', 'CLIENT')")
+    public ResponseEntity<ResponseDTO> saveProduct(ProductRequest productRequest) {
         try{
-            log.info("In save product method:->>>>>>>{}", product);
-            if (product == null){
-                log.error("payload cannot be null:->>>>>>>{}", HttpStatus.BAD_REQUEST);
+            log.info("In save product method:->>");
+            if (productRequest == null){
+                log.error("payload cannot be null:->>{}", HttpStatus.BAD_REQUEST);
                 ResponseDTO  response = AppUtils.getResponseDto("product payload cannot be null", HttpStatus.BAD_REQUEST);
                 return new ResponseEntity<>(response, HttpStatus.BAD_REQUEST);
             }
-            Product productRes = productRepo.save(product);
-//            productFileService.saveProductFile(file);
-            ResponseDTO  response = AppUtils.getResponseDto("product record added successfully", HttpStatus.CREATED, productRes);
+            //check if the vendor the product is creating under is OPEN or CLOSE
+            Optional<Vendor> vendorOptional = vendorRepo.findByUserId(UUID.fromString(AppUtils.getAuthenticatedUserId()));
+            if (vendorOptional.isEmpty()){
+                log.error("vendor not found:->>{}", AppUtils.getAuthenticatedUserId());
+                ResponseDTO  response = AppUtils.getResponseDto("Vendor record not found", HttpStatus.NOT_FOUND);
+                return new ResponseEntity<>(response, HttpStatus.NOT_FOUND);
+            }
+            if (!vendorOptional.get().getStatus().equalsIgnoreCase(AppConstants.VENDOR_OPEN)){
+                log.error("Vendor is closed:->>{}", vendorOptional.get().getName());
+                ResponseDTO  response = AppUtils.getResponseDto("Vendor is closed", HttpStatus.BAD_REQUEST);
+                return new ResponseEntity<>(response, HttpStatus.BAD_REQUEST);
+            }
+
+            // save image to uploads directory when provided
+            String newFileName = null;
+            if (productRequest.getFile()!=null){
+                Path directory = Paths.get(uploadDirectory);
+                if (!Files.exists(directory)){
+                    log.info("Creating directory:->>{}", directory);
+                    Files.createDirectories(directory);
+                }
+                //building unique file name
+                String originalFilename = productRequest.getFile().getOriginalFilename();
+                String timestamp = String.valueOf(System.currentTimeMillis());
+                newFileName = timestamp + "_" + originalFilename;
+                //saving file
+                Path resolveFile = directory.resolve(newFileName);
+                productRequest.getFile().transferTo(resolveFile);
+            }
+
+            //saving product
+            Product data = Product.builder()
+                    .name(productRequest.getName())
+                    .unitPrice(productRequest.getPrice())
+                    .quantity(productRequest.getQuantity())
+                    .productOwnerId(UUID.fromString(AppUtils.getAuthenticatedUserId()))
+                    .categoryId(productRequest.getCategoryId())
+                    .fileName(newFileName)
+                    .build();
+            Product productRes = productRepo.save(data);
+
+            log.info("product record added successfully:->>{}", productRes);
+            ResponseDTO  response = AppUtils.getResponseDto("Product record added successfully", HttpStatus.CREATED, productRes);
             return new ResponseEntity<>(response, HttpStatus.CREATED);
+
         } catch (Exception e) {
             log.info("Exception->>>{}", (Object) e.getStackTrace());
             log.error("Exception Occurred!, statusCode -> {} and Cause -> {} and Message -> {}", 500, e.getCause(), e.getMessage());
@@ -76,31 +136,23 @@ public class ProductServiceImpl implements ProductService {
     @Override
     public ResponseEntity<ResponseDTO> findAll(PaginationPayload paginationPayload) {
         try{
-            log.info("In get all products method:->>>>>>");
-
-            Product product = Product
-                    .builder()
-                    .name("Mango")
-                    .build();
-            Example<Product> example = Example.of(product, AppUtils.SEARCH_CONDITION_MATCH_ANY);
-
+            log.info("In get all products method:->>");
             boolean isPaginate = paginationPayload.isPaginate();
-
             Page<ProductProjection> productsPage = null;
             List<ProductProjection> products = null;
             if (isPaginate){
                 Pageable pageable = AppUtils.getPageRequest(paginationPayload);
                 productsPage = productRepo.getProductAndCategory(paginationPayload.getCategory(), paginationPayload.getProduct(), pageable);
                 if (productsPage.isEmpty()){
-                    log.error("no product record found:->>>>>>>{}", HttpStatus.NOT_FOUND);
-                    ResponseDTO  response = AppUtils.getResponseDto("no product record found", HttpStatus.NOT_FOUND);
+                    log.error("No product record found:->>{}", HttpStatus.NOT_FOUND);
+                    ResponseDTO  response = AppUtils.getResponseDto("No product record found", HttpStatus.NOT_FOUND);
                     return new ResponseEntity<>(response, HttpStatus.NOT_FOUND);
                 }
             }else {
                 products = productRepo.getProductAndCategory(paginationPayload.getCategory(), paginationPayload.getProduct());
                 if (products.isEmpty()){
-                    log.error("no product record found:->>>>>>>{}", HttpStatus.NOT_FOUND);
-                    ResponseDTO  response = AppUtils.getResponseDto("no product record found", HttpStatus.NOT_FOUND);
+                    log.error("No product record found:->>>>>>>{}", HttpStatus.NOT_FOUND);
+                    ResponseDTO  response = AppUtils.getResponseDto("No product record found", HttpStatus.NOT_FOUND);
                     return new ResponseEntity<>(response, HttpStatus.NOT_FOUND);
                 }
             }
@@ -115,7 +167,7 @@ public class ProductServiceImpl implements ProductService {
                         .unitPrice(projection.getUnitPrice())
                         .vendor(projection.getVendor())
                         .category(projection.getCategory())
-                        .imageUrl(appProperties.getBaseUrl()+"/image/"+projection.getId())
+                        .imageUrl(appProperties.getBaseUrl()+projection.getId())
                         .build();
 
                 res.add(productResponse);
@@ -133,6 +185,7 @@ public class ProductServiceImpl implements ProductService {
 
             ResponseDTO  response = AppUtils.getResponseDto("products records fetched successfully", HttpStatus.OK, res);
             return new ResponseEntity<>(response, HttpStatus.OK);
+
         } catch (Exception e) {
             log.error("Exception Occurred!, statusCode -> {} and Cause -> {} and Message -> {}", 500, e.getCause(), e.getMessage());
             ResponseDTO  response = AppUtils.getResponseDto(e.getMessage(), HttpStatus.INTERNAL_SERVER_ERROR);
@@ -165,7 +218,7 @@ public class ProductServiceImpl implements ProductService {
                     .unitPrice(product.getUnitPrice())
                     .vendor(product.getVendor())
                     .category(product.getCategory())
-                    .imageUrl(appProperties.getBaseUrl()+"/image/"+product.getId())
+                    .imageUrl(appProperties.getBaseUrl()+product.getId())
                     .build();
             ResponseDTO  response = AppUtils.getResponseDto("product records fetched successfully", HttpStatus.OK, productResponse);
             return new ResponseEntity<>(response, HttpStatus.OK);
@@ -203,7 +256,7 @@ public class ProductServiceImpl implements ProductService {
                         .unitPrice(projection.getUnitPrice())
                         .vendor(projection.getVendor())
                         .category(projection.getCategory())
-                        .imageUrl(appProperties.getBaseUrl()+"/image/"+projection.getId())
+                        .imageUrl(appProperties.getBaseUrl()+projection.getId())
                         .build();
 
                 res.add(productResponse);
@@ -245,7 +298,7 @@ public class ProductServiceImpl implements ProductService {
                         .unitPrice(projection.getUnitPrice())
                         .vendor(projection.getVendor())
                         .category(projection.getCategory())
-                        .imageUrl(appProperties.getBaseUrl()+"/image/"+projection.getId())
+                        .imageUrl(appProperties.getBaseUrl()+projection.getId())
                         .build();
 
                 res.add(productResponse);
@@ -318,11 +371,23 @@ public class ProductServiceImpl implements ProductService {
         }
     }
 
-    @Transactional
-    public byte[] getImage(UUID id) {
+    public Resource getImage(UUID id) throws MalformedURLException {
         log.info("In get image method:->>>>");
         Product dbImage = productRepo.findById(id)
                 .orElseThrow(()-> new NotFoundException("image record not found"));
-        return ImageUtil.decompressImage(dbImage.getImage());
+        Path directory = Paths.get(uploadDirectory);
+        Path fileToLoad = Paths.get(dbImage.getFileName());
+        Path resolvePath = directory.resolve(fileToLoad);
+        if (!resolvePath.toFile().exists()) {
+            log.error("image file does not exist");
+            throw new NotFoundException("image file does not exist");
+        }
+        return new UrlResource(resolvePath.toUri());
+    }
+
+    @Cacheable(value = "userRecords", key = "#name")
+    public String testRedis(String name){
+        log.info("In testRedis method:->>>>>>");
+        return name;
     }
 }
