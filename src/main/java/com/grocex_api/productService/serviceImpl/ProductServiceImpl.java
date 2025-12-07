@@ -55,8 +55,8 @@ public class ProductServiceImpl implements ProductService {
 
     /**
      * @description This method is used to save product to the db
-     * @param productRequest
-     * @return
+     * @param productRequest The payload of the new product to be added
+     * @return ResponseEntity containing the saved record and status info
      * @auther Emmanuel Yidana
      * @createdAt 30h April 2025
      */
@@ -126,7 +126,7 @@ public class ProductServiceImpl implements ProductService {
 
     /**
      * @description This method is used to get all products from the db
-     * @return
+     * @return ResponseEntity containing the retrieved records and status info
      * @auther Emmanuel Yidana
      * @createdAt 30h April 2025
      */
@@ -192,8 +192,8 @@ public class ProductServiceImpl implements ProductService {
 
     /**
      * @description This method is used to get product records given the product id.
-     * @param productId
-     * @return
+     * @param productId Id of the product to be retrieved
+     * @return ResponseEntity containing the retrieved record and status info
      * @auther Emmanuel Yidana
      * @createdAt 27h April 2025
      */
@@ -217,8 +217,11 @@ public class ProductServiceImpl implements ProductService {
                     .category(product.getCategory())
                     .imageUrl(appProperties.getBaseUrl()+product.getId())
                     .build();
+
+            log.info("Product record retrieved successfully:->>{}", productResponse);
             ResponseDTO  response = AppUtils.getResponseDto("product records fetched successfully", HttpStatus.OK, productResponse);
             return new ResponseEntity<>(response, HttpStatus.OK);
+
         } catch (Exception e) {
             log.error("Exception Occurred!, statusCode -> {} and Cause -> {} and Message -> {}", 500, e.getCause(), e.getMessage());
             ResponseDTO  response = AppUtils.getResponseDto("Internal server error", HttpStatus.INTERNAL_SERVER_ERROR);
@@ -228,8 +231,8 @@ public class ProductServiceImpl implements ProductService {
 
     /**
      * @description This method is used to get product records given the product category.
-     * @param category
-     * @return
+     * @param category The name of the category
+     * @return ResponseEntity containing the retrieved record and status info
      * @auther Emmanuel Yidana
      * @createdAt 5th May 2025
      */
@@ -269,8 +272,8 @@ public class ProductServiceImpl implements ProductService {
 
     /**
      * @description This method is used to get product records given the product vendor.
-     * @param vendor
-     * @return
+     * @param vendor The name of the vendor
+     * @return ResponseEntity containing the retrieved record and status info
      * @auther Emmanuel Yidana
      * @createdAt 5th May 2025
      */
@@ -311,11 +314,12 @@ public class ProductServiceImpl implements ProductService {
 
     /**
      * @description This method is used to update product records.
-     * @param updateProductPayload
-     * @return
+     * @param updateProductPayload The new data to be updated with
+     * @return ResponseEntity containing updated record and status info
      * @auther Emmanuel Yidana
      * @createdAt 30h April 2025
      */
+    @PreAuthorize("hasAnyAuthority('ADMIN', 'CLIENT')")
     @Override
     public ResponseEntity<ResponseDTO> updateProduct(UpdateProductPayload updateProductPayload) {
        try {
@@ -347,13 +351,14 @@ public class ProductServiceImpl implements ProductService {
               }
               Files.delete(resolvedFile);
 
-              //add new file
+              //add the new file
               log.info("About to add new image");
               Path newFile = Paths.get(Objects.requireNonNull(updateProductPayload.getFile().getOriginalFilename()));
-              Path newResolvedFile = directory.resolve(newFile);
+               String timestamp = String.valueOf(System.currentTimeMillis());
+               String newFileName = timestamp + "_" + newFile;
+               log.info("New image file created:->> {}", newFileName);
+               Path newResolvedFile = directory.resolve(newFileName);
               updateProductPayload.getFile().transferTo(newResolvedFile);
-              String timestamp = String.valueOf(System.currentTimeMillis());
-              String newFileName = timestamp + "_" + newResolvedFile.getFileName();
               existingData.setFileName(newFileName);
           }
 
@@ -374,10 +379,11 @@ public class ProductServiceImpl implements ProductService {
     /**
      * @description This method is used to remove product records from the db.
      * @param productId
-     * @return
+     * @return ResponseEntity containing message and status info
      * @auther Emmanuel Yidana
      * @createdAt 30th April 2025
      */
+    @PreAuthorize("hasAnyAuthority('ADMIN', 'CLIENT')")
     @Override
     public ResponseEntity<ResponseDTO> removeProduct(UUID productId) {
         try {
@@ -388,9 +394,21 @@ public class ProductServiceImpl implements ProductService {
                 return new ResponseEntity<>(response, HttpStatus.NOT_FOUND);
             }
             productRepo.deleteById(productId);
+            //remove product image
+            Path fileToDelete = Paths.get(productOptional.get().getFileName());
+            Path directory = Paths.get(uploadDirectory);
+            Path resolvedFile = directory.resolve(fileToDelete);
+            if (!Files.exists(resolvedFile)){
+                log.error("File does not exist:->>{}", fileToDelete.getFileName());
+                ResponseDTO responseDTO = AppUtils.getResponseDto("File does not exist", HttpStatus.NOT_FOUND);
+                return new ResponseEntity<>(responseDTO, HttpStatus.NOT_FOUND);
+            }
+            Files.delete(resolvedFile);
+
             log.info("product removed successfully:->>>>>>");
             ResponseDTO  response = AppUtils.getResponseDto("product record removed successfully", HttpStatus.OK);
             return new ResponseEntity<>(response, HttpStatus.OK);
+
         } catch (Exception e) {
             log.error("Exception Occurred!, statusCode -> {} and Cause -> {} and Message -> {}", 500, e.getCause(), e.getMessage());
             ResponseDTO  response = AppUtils.getResponseDto("Internal server error", HttpStatus.INTERNAL_SERVER_ERROR);
@@ -398,6 +416,12 @@ public class ProductServiceImpl implements ProductService {
         }
     }
 
+    /**
+     * @description This method is used get a specific product image and displays it to the ui
+     * @param id The id of the product
+     * @return ResponseEntity containing the retrieved image and status info
+     * @throws MalformedURLException
+     */
     public Resource getImage(UUID id) throws MalformedURLException {
         log.info("In get image method:->>>>");
         Product dbImage = productRepo.findById(id)

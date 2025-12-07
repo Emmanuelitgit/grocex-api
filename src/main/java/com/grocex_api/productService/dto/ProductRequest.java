@@ -30,8 +30,6 @@ public class ProductRequest {
     private Float price;
     @NotNull(message = "product category id cannot be null")
     private UUID categoryId;
-    @NotNull(message = "product owner id cannot be null")
-    private UUID ownerId;
 //    @NotNull(message = "product image cannot be null")
     private MultipartFile file;
 }
