@@ -66,14 +66,13 @@ public class OrderServiceImpl implements OrderService {
            }
 
            // grouping all order details as one order.
+            UUID customerId = UUID.fromString(AppUtils.getAuthenticatedUserId());
             float entireOrderTotalPrice = 0;
-            UUID customerId = null;
            for (OrderPayload orderPayload:orders){
                Optional<Product> productOptional = productRepo.findById(orderPayload.getProductId());
               if (productOptional.isPresent()){
                   float totalPrice = calculateTotalPrice(productOptional.get().getUnitPrice(), orderPayload.getQuantity());
                   entireOrderTotalPrice +=totalPrice;
-                  customerId = orderPayload.getCustomerId();
               }
 
            }
@@ -224,7 +223,7 @@ public class OrderServiceImpl implements OrderService {
 
     /**
      * @description This method is used to fetch group orders by user id.
-     * @return
+     * @return ResponseEntity containing retrieved orders and status info
      * @auther Emmanuel Yidana
      * @createdAt 30h April 2025
      */
@@ -255,6 +254,12 @@ public class OrderServiceImpl implements OrderService {
     }
 
 
+    /**
+     * @description This method is used to fetch a specific order by id.
+     * @return ResponseEntity containing retrieved orders and status info
+     * @auther Emmanuel Yidana
+     * @createdAt 30h April 2025
+     */
     @Override
     public ResponseEntity<ResponseDTO> findOrderById(UUID orderId) {
         try{
@@ -284,8 +289,10 @@ public class OrderServiceImpl implements OrderService {
                 orderRes.add(orderResponse);
             });
 
+            log.info("Orders fetched successfully");
             ResponseDTO  response = AppUtils.getResponseDto("order records fetched successfully", HttpStatus.OK, orderRes);
             return new ResponseEntity<>(response, HttpStatus.OK);
+
         } catch (Exception e) {
             log.error("Exception Occurred!, statusCode -> {} and Cause -> {} and Message -> {}", 500, e.getCause(), e.getMessage());
             ResponseDTO  response = AppUtils.getResponseDto(e.getMessage(), HttpStatus.INTERNAL_SERVER_ERROR);
@@ -293,6 +300,12 @@ public class OrderServiceImpl implements OrderService {
         }
     }
 
+    /**
+     * @description This method is used to fetch an order record by user id.
+     * @return ResponseEntity containing retrieved order and status info
+     * @auther Emmanuel Yidana
+     * @createdAt 30h April 2025
+     */
     @Override
     public ResponseEntity<ResponseDTO> findOrderByUserId(UUID userId) {
         try{
@@ -332,6 +345,14 @@ public class OrderServiceImpl implements OrderService {
         }
     }
 
+    /**
+     * @description This method is used to update an order record by id.
+     * @param orderId The id of the order to be updated
+     * @param orderPayload The payload of the order to be updated with
+     * @return ResponseEntity containing retrieved order and status info
+     * @auther Emmanuel Yidana
+     * @createdAt 30h April 2025
+     */
     @Transactional
     @Override
     public ResponseEntity<ResponseDTO> updateOrder(OrderPayload orderPayload, UUID orderId) {
@@ -381,11 +402,12 @@ public class OrderServiceImpl implements OrderService {
            float updatedOrderTotalPrice = orderTotalPrice + updatedProductOrderTotalPrice;
 
            existingOrder.setTotalPrice(updatedOrderTotalPrice);
-           orderRepo.save(existingOrder);
+           Order orderRes = orderRepo.save(existingOrder);
 
-           log.info("order updated successfully:->>>>>>");
+           log.info("order updated successfully:->>{}", orderRes);
            ResponseDTO  response = AppUtils.getResponseDto("order record updated successfully", HttpStatus.OK);
            return new ResponseEntity<>(response, HttpStatus.OK);
+
        }catch (Exception e) {
            log.error("Exception Occurred!, statusCode -> {} and Cause -> {} and Message -> {}", 500, e.getCause(), e.getMessage());
            ResponseDTO  response = AppUtils.getResponseDto("Internal server error", HttpStatus.INTERNAL_SERVER_ERROR);
@@ -393,6 +415,13 @@ public class OrderServiceImpl implements OrderService {
        }
     }
 
+    /**
+     * @description This method is used to delete an order record by id
+     * @param orderId the id of the order to be deleted
+     * @return ResponseEntity containing message and status info
+     * @auther Emmanuel Yidana
+     * @createdAt 30h April 2025
+     */
     @Override
     public ResponseEntity<ResponseDTO> removeOrder(UUID orderId) {
         try {
@@ -403,9 +432,11 @@ public class OrderServiceImpl implements OrderService {
                 return new ResponseEntity<>(response, HttpStatus.NOT_FOUND);
             }
             orderRepo.deleteById(orderId);
-            log.info("order removed successfully:->>>>>>");
+
+            log.info("order removed successfully");
             ResponseDTO  response = AppUtils.getResponseDto("order record removed successfully", HttpStatus.OK);
             return new ResponseEntity<>(response, HttpStatus.OK);
+
         } catch (Exception e) {
             log.error("Exception Occurred!, statusCode -> {} and Cause -> {} and Message -> {}", 500, e.getCause(), e.getMessage());
             ResponseDTO  response = AppUtils.getResponseDto("Internal server error", HttpStatus.INTERNAL_SERVER_ERROR);
