@@ -3,10 +3,7 @@ package com.grocex_api.productService.serviceImpl;
 import com.grocex_api.config.AppProperties;
 import com.grocex_api.exception.NotFoundException;
 import com.grocex_api.imageUtility.ImageUtil;
-import com.grocex_api.productService.dto.PaginationPayload;
-import com.grocex_api.productService.dto.ProductProjection;
-import com.grocex_api.productService.dto.ProductRequest;
-import com.grocex_api.productService.dto.ProductResponse;
+import com.grocex_api.productService.dto.*;
 import com.grocex_api.productService.models.Product;
 import com.grocex_api.productService.models.Vendor;
 import com.grocex_api.productService.repo.ProductRepo;
@@ -314,29 +311,59 @@ public class ProductServiceImpl implements ProductService {
 
     /**
      * @description This method is used to update product records.
-     * @param product
+     * @param updateProductPayload
      * @return
      * @auther Emmanuel Yidana
      * @createdAt 30h April 2025
      */
     @Override
-    public ResponseEntity<ResponseDTO> updateProduct(Product product) {
+    public ResponseEntity<ResponseDTO> updateProduct(UpdateProductPayload updateProductPayload) {
        try {
            log.info("In update product method:->>>>>>");
-           Product existingData = productRepo.findById(product.getId())
-                   .orElseThrow(()-> new NotFoundException("product record not found"));
+           Optional<Product> productOptional = productRepo.findById(updateProductPayload.getId());
+           if (productOptional.isEmpty()) {
+               log.error("Product record does not exist:->>{}", updateProductPayload.getId());
+               ResponseDTO responseDTO = AppUtils.getResponseDto("Product record does not exist", HttpStatus.NOT_FOUND);
+               return new ResponseEntity<>(responseDTO, HttpStatus.NOT_FOUND);
+           }
 
-           existingData.setName(product.getName() !=null? product.getName() : existingData.getName());
-           existingData.setCategoryId(product.getCategoryId() !=null? product.getCategoryId() : existingData.getCategoryId());
-           existingData.setRating(product.getRating() !=null? product.getRating() : existingData.getRating());
-           existingData.setProductOwnerId(product.getProductOwnerId() !=null? product.getProductOwnerId() : existingData.getProductOwnerId());
-           existingData.setUnitPrice(product.getUnitPrice() !=null ? product.getUnitPrice() : existingData.getUnitPrice());
-           existingData.setQuantity(product.getQuantity()>0? product.getQuantity() : existingData.getQuantity());
-           existingData.setImage(product.getImage() !=null?ImageUtil.compressImage(product.getImage()) : existingData.getImage());
+           //populating updated fields
+           Product existingData = productOptional.get();
+           existingData.setName(updateProductPayload.getName() !=null? updateProductPayload.getName() : existingData.getName());
+           existingData.setCategoryId(updateProductPayload.getCategoryId() !=null? updateProductPayload.getCategoryId() : existingData.getCategoryId());
+           existingData.setRating(updateProductPayload.getRating() !=null? updateProductPayload.getRating() : existingData.getRating());
+           existingData.setUnitPrice(updateProductPayload.getPrice() !=null ? updateProductPayload.getPrice() : existingData.getUnitPrice());
+           existingData.setQuantity(updateProductPayload.getQuantity()!=null? updateProductPayload.getQuantity() : existingData.getQuantity());
+
+           //remove image if available and add new one
+           if (updateProductPayload.getFile()!=null){
+              Path existingFile = Paths.get(Objects.requireNonNull(existingData.getFileName()));
+              Path directory = Paths.get(uploadDirectory);
+              Path resolvedFile = directory.resolve(existingFile);
+              if (!Files.exists(resolvedFile)){
+                  log.error("file does not exist:->>{}", existingFile.getFileName());
+                  ResponseDTO responseDTO = AppUtils.getResponseDto("file does not exist", HttpStatus.NOT_FOUND);
+                  return new ResponseEntity<>(responseDTO, HttpStatus.NOT_FOUND);
+              }
+              Files.delete(resolvedFile);
+
+              //add new file
+              log.info("About to add new image");
+              Path newFile = Paths.get(Objects.requireNonNull(updateProductPayload.getFile().getOriginalFilename()));
+              Path newResolvedFile = directory.resolve(newFile);
+              updateProductPayload.getFile().transferTo(newResolvedFile);
+              String timestamp = String.valueOf(System.currentTimeMillis());
+              String newFileName = timestamp + "_" + newResolvedFile.getFileName();
+              existingData.setFileName(newFileName);
+          }
+
+           //save updated data
            Product productRes = productRepo.save(existingData);
 
+           log.info("Product updated successfully:->>{}", productRes);
            ResponseDTO  response = AppUtils.getResponseDto("product records updated successfully", HttpStatus.OK, productRes);
            return new ResponseEntity<>(response, HttpStatus.OK);
+
        } catch (Exception e) {
            log.error("Exception Occurred!, statusCode -> {} and Cause -> {} and Message -> {}", 500, e.getCause(), e.getMessage());
            ResponseDTO  response = AppUtils.getResponseDto("Internal server error", HttpStatus.INTERNAL_SERVER_ERROR);

@@ -34,6 +34,6 @@ public class Product extends AuditorData {
     @Lob
     @Column(columnDefinition = "LONGBLOB")
 //    @NotNull(message = "product image cannot be null")
-    private byte[] image;
+//    private byte[] image;
     private String fileName;
 }

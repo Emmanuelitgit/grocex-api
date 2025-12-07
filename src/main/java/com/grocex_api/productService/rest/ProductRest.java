@@ -3,6 +3,7 @@ package com.grocex_api.productService.rest;
 import com.grocex_api.imageUtility.ImageUtil;
 import com.grocex_api.productService.dto.PaginationPayload;
 import com.grocex_api.productService.dto.ProductRequest;
+import com.grocex_api.productService.dto.UpdateProductPayload;
 import com.grocex_api.productService.models.Product;
 import com.grocex_api.productService.serviceImpl.ProductServiceImpl;
 import com.grocex_api.response.ResponseDTO;
@@ -69,26 +70,8 @@ public class ProductRest {
     }
 
     @PutMapping(consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
-    public ResponseEntity<ResponseDTO> updateProduct(
-            @RequestParam(value = "id") UUID id,
-            @RequestParam(value = "name", required = false) String name,
-            @RequestParam(value = "price", required = false) Float price,
-            @RequestParam(value = "quantity", required = false) Integer quantity,
-            @RequestParam(value = "ownerId", required = false) UUID ownerId,
-            @RequestParam(value = "categoryId", required = false) UUID category,
-            @RequestParam(value = "file", required = false)  MultipartFile file
-    ) throws IOException {
-        Product data = Product.builder()
-                .id(id)
-                .image(file != null ? file.getBytes() : null)
-                .name(name)
-                .unitPrice(price)
-                .quantity(quantity !=null? quantity : 0)
-                .productOwnerId(ownerId)
-                .categoryId(category)
-                .categoryId(category)
-                .build();
-        return productService.updateProduct(data);
+    public ResponseEntity<ResponseDTO> updateProduct(@Valid @ModelAttribute UpdateProductPayload updateProductPayload) throws IOException {
+        return productService.updateProduct(updateProductPayload);
     }
 
     @DeleteMapping("/{productId}")
